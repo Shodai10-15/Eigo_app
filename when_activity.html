@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>I use it when I ... | ペアカード</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --a1: #FF6B6B; --a1-dark: #C0392B; --a1-light: rgba(255,107,107,0.15);
+  --a2: #FF9F43; --a2-dark: #E67E22; --a2-light: rgba(255,159,67,0.15);
+  --b1: #4ECDC4; --b1-dark: #1A8A82; --b1-light: rgba(78,205,196,0.15);
+  --b2: #A29BFE; --b2-dark: #6C5CE7; --b2-light: rgba(162,155,254,0.15);
+  --bg: #1A1A2E;
+  --surface: #16213E;
+  --surface2: #1E2D50;
+  --text: #FFFFFF;
+  --text2: rgba(255,255,255,0.55);
+  --yellow: #FFE66D;
+  --active: #FF6B6B;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Noto Sans JP', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 1rem 1rem 2rem;
+}
+
+/* HEADER */
+.header {
+  width: 100%; max-width: 580px;
+  text-align: center;
+  padding: 1.5rem 0 0.75rem;
+}
+.header h1 {
+  font-family: 'Boogaloo', cursive;
+  font-size: 26px;
+  color: var(--yellow);
+  letter-spacing: 1px;
+  margin-bottom: 4px;
+}
+.header .subtitle {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 4px;
+}
+.header .instruction {
+  font-size: 12px;
+  color: var(--text2);
+  background: var(--surface2);
+  border-radius: 8px;
+  padding: 6px 12px;
+  display: inline-block;
+  margin-top: 6px;
+}
+
+/* SET SELECTOR */
+.set-selector {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr 1fr;
+  gap: 6px;
+  width: 100%; max-width: 580px;
+  margin: 1rem 0 0.75rem;
+}
+.set-btn {
+  padding: 10px 6px;
+  border-radius: 10px;
+  border: 2px solid transparent;
+  font-size: 13px;
+  font-weight: 700;
+  font-family: 'Boogaloo', cursive;
+  letter-spacing: 0.5px;
+  cursor: pointer;
+  transition: all 0.2s;
+  text-align: center;
+  line-height: 1.3;
+}
+.set-btn.a1 { background: var(--a1-light); border-color: rgba(255,107,107,0.3); color: var(--a1); }
+.set-btn.a2 { background: var(--a2-light); border-color: rgba(255,159,67,0.3);  color: var(--a2); }
+.set-btn.b1 { background: var(--b1-light); border-color: rgba(78,205,196,0.3);  color: var(--b1); }
+.set-btn.b2 { background: var(--b2-light); border-color: rgba(162,155,254,0.3); color: var(--b2); }
+.set-btn.a1.active { background: var(--a1); color: #fff; border-color: var(--a1); }
+.set-btn.a2.active { background: var(--a2); color: #fff; border-color: var(--a2); }
+.set-btn.b1.active { background: var(--b1); color: #fff; border-color: var(--b1); }
+.set-btn.b2.active { background: var(--b2); color: #fff; border-color: var(--b2); }
+
+/* DIFFICULTY BADGE */
+.diff-badge {
+  width: 100%; max-width: 580px;
+  text-align: center;
+  margin-bottom: 0.75rem;
+}
+.diff-badge span {
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 14px;
+  border-radius: 20px;
+  letter-spacing: 1px;
+}
+.diff-normal { background: rgba(255,255,255,0.08); color: var(--text2); }
+.diff-hard   { background: rgba(255,107,107,0.15); color: #FF6B6B; }
+
+/* PROGRESS */
+.progress-wrap {
+  width: 100%; max-width: 580px;
+  height: 4px;
+  background: rgba(255,255,255,0.08);
+  border-radius: 2px;
+  margin-bottom: 1rem;
+  overflow: hidden;
+}
+.progress-fill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease;
+}
+.fill-a1 { background: var(--a1); }
+.fill-a2 { background: var(--a2); }
+.fill-b1 { background: var(--b1); }
+.fill-b2 { background: var(--b2); }
+
+/* CARD */
+.card-wrap { width: 100%; max-width: 580px; margin-bottom: 1rem; }
+.card {
+  background: var(--surface);
+  border-radius: 22px;
+  padding: 2rem 1.5rem 1.5rem;
+  text-align: center;
+  border: 2px solid rgba(255,255,255,0.06);
+  min-height: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.card::before {
+  content: '';
+  position: absolute;
+  top: -50px; right: -50px;
+  width: 140px; height: 140px;
+  border-radius: 50%;
+  opacity: 0.05;
+  transition: background 0.3s;
+}
+.card.ca1 { border-color: rgba(255,107,107,0.3); }
+.card.ca2 { border-color: rgba(255,159,67,0.3); }
+.card.cb1 { border-color: rgba(78,205,196,0.3); }
+.card.cb2 { border-color: rgba(162,155,254,0.3); }
+.card.ca1::before { background: var(--a1); }
+.card.ca2::before { background: var(--a2); }
+.card.cb1::before { background: var(--b1); }
+.card.cb2::before { background: var(--b2); }
+
+.card-no {
+  font-family: 'Boogaloo', cursive;
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--text2);
+  margin-bottom: 1rem;
+}
+.card-item-emoji { font-size: 48px; margin-bottom: 0.5rem; }
+.card-item-jp {
+  font-size: 36px;
+  font-weight: 900;
+  color: var(--text);
+  margin-bottom: 0.25rem;
+}
+.card-prompt {
+  font-size: 13px;
+  color: var(--text2);
+  margin-bottom: 1.25rem;
+}
+.card-prompt strong {
+  font-family: 'Boogaloo', cursive;
+  font-size: 16px;
+  letter-spacing: 0.5px;
+}
+.card-prompt.ca1 strong { color: var(--a1); }
+.card-prompt.ca2 strong { color: var(--a2); }
+.card-prompt.cb1 strong { color: var(--b1); }
+.card-prompt.cb2 strong { color: var(--b2); }
+
+/* HINT */
+.hint-area {
+  width: 100%;
+  background: var(--surface2);
+  border-radius: 12px;
+  padding: 0.75rem 1rem;
+  margin-top: 0.5rem;
+}
+.hint-label {
+  font-size: 11px;
+  color: var(--text2);
+  letter-spacing: 1px;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+  text-align: left;
+}
+.hint-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.hint-chip {
+  background: rgba(255,255,255,0.06);
+  border-radius: 8px;
+  padding: 4px 10px;
+  text-align: center;
+}
+.hint-chip .hint-en {
+  font-family: 'Boogaloo', cursive;
+  font-size: 15px;
+  letter-spacing: 0.5px;
+  display: block;
+}
+.hint-chip .hint-jp {
+  font-size: 10px;
+  color: var(--text2);
+  display: block;
+}
+.hint-chip .hint-kana {
+  font-size: 10px;
+  color: var(--text2);
+  display: block;
+}
+.ca1 .hint-chip .hint-en { color: var(--a1); }
+.ca2 .hint-chip .hint-en { color: var(--a2); }
+.cb1 .hint-chip .hint-en { color: var(--b1); }
+.cb2 .hint-chip .hint-en { color: var(--b2); }
+
+/* COUNTER */
+.counter { font-size: 12px; color: var(--text2); margin-top: 1rem; font-weight: 700; letter-spacing: 1px; }
+
+/* DONE */
+.done-card {
+  width: 100%; max-width: 580px;
+  background: var(--surface);
+  border-radius: 22px;
+  padding: 3rem 2rem;
+  text-align: center;
+  display: none;
+}
+.done-card.show { display: block; }
+.done-emoji  { font-size: 56px; margin-bottom: 1rem; }
+.done-title  { font-family: 'Boogaloo', cursive; font-size: 28px; color: var(--yellow); margin-bottom: 0.5rem; }
+.done-sub    { font-size: 14px; color: var(--text2); }
+
+/* BUTTONS */
+.btn-next {
+  width: 100%; max-width: 580px;
+  padding: 16px;
+  border-radius: 14px;
+  border: none;
+  font-size: 18px;
+  font-family: 'Boogaloo', cursive;
+  letter-spacing: 1px;
+  cursor: pointer;
+  transition: transform 0.1s, opacity 0.2s;
+  margin-bottom: 0.75rem;
+  color: #fff;
+}
+.btn-next:active { transform: scale(0.97); }
+.btn-next.ba1 { background: var(--a1); }
+.btn-next.ba2 { background: var(--a2); }
+.btn-next.bb1 { background: var(--b1); }
+.btn-next.bb2 { background: var(--b2); }
+
+.btn-reset {
+  width: 100%; max-width: 580px;
+  padding: 12px;
+  border-radius: 14px;
+  border: 2px solid rgba(255,255,255,0.1);
+  background: transparent;
+  color: var(--text2);
+  font-size: 14px;
+  font-family: 'Noto Sans JP', sans-serif;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+.btn-reset:hover { background: rgba(255,255,255,0.05); }
+
+@keyframes pop {
+  0%   { transform: scale(0.93); opacity: 0; }
+  60%  { transform: scale(1.02); }
+  100% { transform: scale(1);    opacity: 1; }
+}
+.card.animate { animation: pop 0.22s ease-out; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>🔍 I use it when I ...</h1>
+  <p class="subtitle">ペアに説明して、何か当ててもらおう！</p>
+  <p class="instruction">💬 "We use it when we ～." で説明しよう</p>
+</div>
+
+<div class="set-selector">
+  <button class="set-btn a1 active" onclick="switchSet('a1')">🔴 A-1<br><small>ふつう①</small></button>
+  <button class="set-btn a2"        onclick="switchSet('a2')">🟠 A-2<br><small>ふつう②</small></button>
+  <button class="set-btn b1"        onclick="switchSet('b1')">🔵 B-1<br><small>上級①</small></button>
+  <button class="set-btn b2"        onclick="switchSet('b2')">🟣 B-2<br><small>上級②</small></button>
+</div>
+
+<div class="diff-badge">
+  <span id="diff-label" class="diff-normal">⭐ ふつう — 使う場面がはっきりしているもの</span>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-fill fill-a1" id="progress-fill" style="width:0%"></div>
+</div>
+
+<div class="card-wrap">
+  <div class="card ca1" id="main-card">
+    <div class="card-no" id="card-no">1 / 10</div>
+    <div class="card-item-emoji" id="card-emoji">✂️</div>
+    <div class="card-item-jp" id="card-jp">ハサミ</div>
+    <div class="card-prompt ca1" id="card-prompt">
+      <strong>"We use it when we ..."</strong><br>
+      <span style="font-size:12px">ペアに説明してみよう</span>
+    </div>
+    <div class="hint-area">
+      <div class="hint-label">💡 HINT WORDS</div>
+      <div class="hint-chips" id="hint-chips"></div>
+    </div>
+    <div class="counter" id="counter">1 / 10</div>
+  </div>
+  <div class="done-card" id="done-card">
+    <div class="done-emoji">🎉</div>
+    <div class="done-title">全部おわった！</div>
+    <div class="done-sub" id="done-sub">10語 コンプリート！</div>
+  </div>
+</div>
+
+<button class="btn-next ba1" id="btn-next" onclick="nextCard()">次のカード ▶</button>
+<button class="btn-reset" onclick="resetCards()">🔄 最初からやり直す</button>
+
+<script>
+const SETS = {
+  a1: {
+    label: '⭐ ふつう① — 使う場面がはっきりしているもの',
+    diffClass: 'diff-normal',
+    items: [
+      { emoji:'✂️', jp:'ハサミ',       hints:[{en:'cut',jp:'切る',kana:'カット'},{en:'paper',jp:'紙',kana:'ペーパー'}] },
+      { emoji:'📏', jp:'定規',         hints:[{en:'measure',jp:'測る',kana:'メジャー'},{en:'line',jp:'線',kana:'ライン'},{en:'long',jp:'長い',kana:'ロング'},{en:'short',jp:'短い',kana:'ショート'}] },
+      { emoji:'🧹', jp:'消しゴム',     hints:[{en:'write',jp:'書く',kana:'ライト'},{en:'wrong',jp:'間違い',kana:'ロング'}] },
+      { emoji:'☂️', jp:'傘',           hints:[{en:'use',jp:'使う',kana:'ユーズ'},{en:'rain',jp:'雨',kana:'レイン'},{en:'outside',jp:'外',kana:'アウトサイド'}] },
+      { emoji:'⏰', jp:'目覚まし時計', hints:[{en:'wake',jp:'起きる',kana:'ウェイク'},{en:'morning',jp:'朝',kana:'モーニング'}] },
+      { emoji:'🪥', jp:'歯ブラシ',     hints:[{en:'brush',jp:'磨く',kana:'ブラッシュ'},{en:'teeth',jp:'歯',kana:'ティース'},{en:'clean',jp:'きれい',kana:'クリーン'}] },
+      { emoji:'🌡️', jp:'体温計',       hints:[{en:'check',jp:'確認する',kana:'チェック'},{en:'sick',jp:'病気',kana:'シック'},{en:'body',jp:'体',kana:'ボディ'}] },
+      { emoji:'🔦', jp:'懐中電灯',     hints:[{en:'dark',jp:'暗い',kana:'ダーク'},{en:'light',jp:'光',kana:'ライト'},{en:'see',jp:'見る',kana:'シー'}] },
+      { emoji:'🔪', jp:'包丁',         hints:[{en:'cut',jp:'切る',kana:'カット'},{en:'cook',jp:'料理する',kana:'クック'},{en:'food',jp:'食べ物',kana:'フード'}] },
+      { emoji:'🖊️', jp:'のり',         hints:[{en:'stick',jp:'くっつける',kana:'スティック'},{en:'paper',jp:'紙',kana:'ペーパー'},{en:'together',jp:'一緒に',kana:'トゥギャザー'}] },
+    ]
+  },
+  a2: {
+    label: '⭐ ふつう② — 使う場面がはっきりしているもの',
+    diffClass: 'diff-normal',
+    items: [
+      { emoji:'🍾', jp:'栓抜き',       hints:[{en:'open',jp:'開ける',kana:'オープン'},{en:'bottle',jp:'瓶',kana:'ボトル'}] },
+      { emoji:'🔍', jp:'虫眼鏡',       hints:[{en:'see',jp:'見る',kana:'シー'},{en:'small',jp:'小さい',kana:'スモール'}] },
+      { emoji:'🧯', jp:'消火器',       hints:[{en:'stop',jp:'止める',kana:'ストップ'},{en:'fire',jp:'火',kana:'ファイア'}] },
+      { emoji:'🩹', jp:'救急絆創膏',   hints:[{en:'hurt',jp:'痛い',kana:'ハート'},{en:'skin',jp:'肌',kana:'スキン'},{en:'protect',jp:'守る',kana:'プロテクト'}] },
+      { emoji:'🧴', jp:'シャンプー',   hints:[{en:'wash',jp:'洗う',kana:'ウォッシュ'},{en:'hair',jp:'髪',kana:'ヘア'},{en:'clean',jp:'きれい',kana:'クリーン'}] },
+      { emoji:'👔', jp:'アイロン',     hints:[{en:'smooth',jp:'なめらか',kana:'スムーズ'},{en:'clothes',jp:'服',kana:'クローズ'},{en:'heat',jp:'熱い',kana:'ヒート'}] },
+      { emoji:'🗺️', jp:'地図',         hints:[{en:'find',jp:'見つける',kana:'ファインド'},{en:'lost',jp:'迷子',kana:'ロスト'},{en:'place',jp:'場所',kana:'プレイス'}] },
+      { emoji:'🧴', jp:'日焼け止め',   hints:[{en:'protect',jp:'守る',kana:'プロテクト'},{en:'sun',jp:'太陽',kana:'サン'},{en:'skin',jp:'肌',kana:'スキン'}] },
+      { emoji:'🌀', jp:'蚊取り線香',   hints:[{en:'stop',jp:'止める',kana:'ストップ'},{en:'bug',jp:'虫',kana:'バグ'},{en:'outside',jp:'外',kana:'アウトサイド'}] },
+      { emoji:'⏱️', jp:'タイマー',     hints:[{en:'count',jp:'数える',kana:'カウント'},{en:'time',jp:'時間',kana:'タイム'},{en:'stop',jp:'止める',kana:'ストップ'}] },
+    ]
+  },
+  b1: {
+    label: '🔥 上級① — 使う場面がたくさんあるもの',
+    diffClass: 'diff-hard',
+    items: [
+      { emoji:'📱', jp:'スマホ',       hints:[{en:'call',jp:'電話する',kana:'コール'},{en:'watch',jp:'見る',kana:'ウォッチ'},{en:'play',jp:'遊ぶ',kana:'プレイ'}] },
+      { emoji:'✏️', jp:'鉛筆',         hints:[{en:'write',jp:'書く',kana:'ライト'},{en:'draw',jp:'描く',kana:'ドロー'}] },
+      { emoji:'🪑', jp:'机',           hints:[{en:'study',jp:'勉強する',kana:'スタディ'},{en:'put',jp:'置く',kana:'プット'},{en:'work',jp:'仕事する',kana:'ワーク'}] },
+      { emoji:'🕐', jp:'時計',         hints:[{en:'check',jp:'確認する',kana:'チェック'},{en:'time',jp:'時間',kana:'タイム'}] },
+      { emoji:'👜', jp:'バッグ',       hints:[{en:'carry',jp:'運ぶ',kana:'キャリー'},{en:'put',jp:'入れる',kana:'プット'},{en:'go out',jp:'外出する',kana:'ゴーアウト'}] },
+      { emoji:'🪞', jp:'鏡',           hints:[{en:'check',jp:'確認する',kana:'チェック'},{en:'face',jp:'顔',kana:'フェイス'},{en:'look',jp:'見る',kana:'ルック'}] },
+      { emoji:'📄', jp:'紙',           hints:[{en:'write',jp:'書く',kana:'ライト'},{en:'draw',jp:'描く',kana:'ドロー'},{en:'fold',jp:'折る',kana:'フォールド'}] },
+      { emoji:'🪑', jp:'いす',         hints:[{en:'sit',jp:'座る',kana:'シット'},{en:'rest',jp:'休む',kana:'レスト'}] },
+      { emoji:'📷', jp:'カメラ',       hints:[{en:'take',jp:'撮る',kana:'テイク'},{en:'photo',jp:'写真',kana:'フォト'},{en:'remember',jp:'覚える',kana:'リメンバー'}] },
+      { emoji:'👛', jp:'財布',         hints:[{en:'pay',jp:'払う',kana:'ペイ'},{en:'buy',jp:'買う',kana:'バイ'},{en:'money',jp:'お金',kana:'マネー'}] },
+    ]
+  },
+  b2: {
+    label: '🔥 上級② — 使う場面がたくさんあるもの',
+    diffClass: 'diff-hard',
+    items: [
+      { emoji:'📚', jp:'本',           hints:[{en:'read',jp:'読む',kana:'リード'},{en:'learn',jp:'学ぶ',kana:'ラーン'}] },
+      { emoji:'🧮', jp:'電卓',         hints:[{en:'calculate',jp:'計算する',kana:'キャルキュレイト'},{en:'number',jp:'数字',kana:'ナンバー'}] },
+      { emoji:'💻', jp:'パソコン',     hints:[{en:'work',jp:'仕事する',kana:'ワーク'},{en:'watch',jp:'見る',kana:'ウォッチ'},{en:'play',jp:'遊ぶ',kana:'プレイ'}] },
+      { emoji:'📓', jp:'ノート',       hints:[{en:'write',jp:'書く',kana:'ライト'},{en:'remember',jp:'覚える',kana:'リメンバー'},{en:'study',jp:'勉強する',kana:'スタディ'}] },
+      { emoji:'🖇️', jp:'テープ',       hints:[{en:'stick',jp:'くっつける',kana:'スティック'},{en:'fix',jp:'直す',kana:'フィックス'}] },
+      { emoji:'🔥', jp:'ライター',     hints:[{en:'light',jp:'つける',kana:'ライト'},{en:'fire',jp:'火',kana:'ファイア'},{en:'burn',jp:'燃やす',kana:'バーン'}] },
+      { emoji:'🔋', jp:'電池',         hints:[{en:'power',jp:'電力',kana:'パワー'},{en:'use',jp:'使う',kana:'ユーズ'},{en:'start',jp:'動かす',kana:'スタート'}] },
+      { emoji:'🛏️', jp:'毛布',         hints:[{en:'cover',jp:'かける',kana:'カバー'},{en:'cold',jp:'寒い',kana:'コールド'},{en:'sleep',jp:'眠る',kana:'スリープ'}] },
+      { emoji:'🪢', jp:'ロープ',       hints:[{en:'tie',jp:'結ぶ',kana:'タイ'},{en:'pull',jp:'引っ張る',kana:'プル'},{en:'hold',jp:'つかむ',kana:'ホールド'}] },
+      { emoji:'👖', jp:'ポケット',     hints:[{en:'put',jp:'入れる',kana:'プット'},{en:'carry',jp:'運ぶ',kana:'キャリー'},{en:'small',jp:'小さい',kana:'スモール'}] },
+    ]
+  }
+};
+
+let currentSet = 'a1';
+let queue = [];
+let currentIdx = 0;
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function getColor(set) {
+  return { a1: '#FF6B6B', a2: '#FF9F43', b1: '#4ECDC4', b2: '#A29BFE' }[set];
+}
+
+function init() {
+  queue = shuffle(SETS[currentSet].items);
+  currentIdx = 0;
+  document.getElementById('done-card').classList.remove('show');
+  document.getElementById('main-card').style.display = 'flex';
+  document.getElementById('btn-next').style.display = 'block';
+  showCard();
+}
+
+function showCard() {
+  const item = queue[currentIdx];
+  const set = currentSet;
+  const card = document.getElementById('main-card');
+
+  // Update card classes
+  card.className = 'card c' + set;
+
+  document.getElementById('card-emoji').textContent = item.emoji;
+  document.getElementById('card-jp').textContent = item.jp;
+  document.getElementById('counter').textContent = (currentIdx + 1) + ' / ' + queue.length;
+
+  // Prompt color
+  const prompt = document.getElementById('card-prompt');
+  prompt.className = 'card-prompt c' + set;
+
+  // Hints
+  const hintArea = document.getElementById('hint-chips');
+  hintArea.innerHTML = '';
+  item.hints.forEach(h => {
+    const chip = document.createElement('div');
+    chip.className = 'hint-chip';
+    chip.innerHTML = `<span class="hint-en">${h.en}</span><span class="hint-jp">${h.jp}</span><span class="hint-kana">${h.kana}</span>`;
+    hintArea.appendChild(chip);
+  });
+
+  // Progress
+  const pct = Math.round((currentIdx / queue.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Animate
+  card.classList.remove('animate');
+  void card.offsetWidth;
+  card.classList.add('animate');
+}
+
+function nextCard() {
+  currentIdx++;
+  if (currentIdx >= queue.length) {
+    document.getElementById('main-card').style.display = 'none';
+    document.getElementById('btn-next').style.display = 'none';
+    document.getElementById('progress-fill').style.width = '100%';
+    const done = document.getElementById('done-card');
+    done.classList.add('show');
+    const labels = { a1:'A-1（ふつう①）', a2:'A-2（ふつう②）', b1:'B-1（上級①）', b2:'B-2（上級②）' };
+    document.getElementById('done-sub').textContent = labels[currentSet] + ' 10語 コンプリート！';
+    return;
+  }
+  showCard();
+}
+
+function resetCards() { init(); }
+
+function switchSet(set) {
+  currentSet = set;
+
+  // Tab styles
+  document.querySelectorAll('.set-btn').forEach(b => b.classList.remove('active'));
+  document.querySelector('.set-btn.' + set).classList.add('active');
+
+  // Diff badge
+  const badge = document.getElementById('diff-label');
+  const info = SETS[set];
+  badge.textContent = info.label;
+  badge.className = info.diffClass;
+
+  // Progress fill color
+  const fill = document.getElementById('progress-fill');
+  fill.className = 'progress-fill fill-' + set;
+
+  // Next button color
+  const btn = document.getElementById('btn-next');
+  btn.className = 'btn-next b' + set;
+
+  init();
+}
+
+init();
+</script>
+</body>
+</html>
