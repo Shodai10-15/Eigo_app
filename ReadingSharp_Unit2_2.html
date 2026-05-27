@@ -1,0 +1,1002 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>ReadingSharp — Unit 2</title>
+<link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display&family=DM+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+/* =============================================
+   TOKENS & RESET
+============================================= */
+:root {
+  --bg:       #f7f6f2;
+  --surface:  #ffffff;
+  --border:   #e4e2da;
+  --text:     #1a1814;
+  --text2:    #6b6860;
+  --text3:    #a8a69f;
+  --green:    #1a7f5a;
+  --green-bg: rgba(26,127,90,0.08);
+  --red:      #c0392b;
+  --amber:    #b07d2a;
+  --radius:   10px;
+  --shadow:   0 1px 3px rgba(0,0,0,0.08), 0 4px 12px rgba(0,0,0,0.04);
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg:       #1a1a18;
+    --surface:  #242420;
+    --border:   #333330;
+    --text:     #f0ede6;
+    --text2:    #8a8880;
+    --text3:    #555450;
+    --green:    #2ecc8f;
+    --green-bg: rgba(46,204,143,0.1);
+    --red:      #e74c3c;
+    --amber:    #f0a500;
+    --shadow:   0 1px 3px rgba(0,0,0,0.3), 0 4px 12px rgba(0,0,0,0.2);
+  }
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'DM Sans', sans-serif;
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  font-size: 15px;
+  line-height: 1.6;
+}
+
+/* =============================================
+   LAYOUT
+============================================= */
+.app { max-width: 640px; margin: 0 auto; padding: 0 0 80px; }
+
+.header {
+  position: sticky; top: 0; z-index: 50;
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo {
+  font-family: 'DM Serif Display', serif;
+  font-size: 18px; color: var(--text);
+}
+.logo em { color: var(--green); font-style: normal; }
+.unit-tag {
+  font-size: 11px; font-weight: 600; letter-spacing: .06em;
+  color: var(--text3); text-transform: uppercase;
+}
+
+/* =============================================
+   LESSON SELECTOR
+============================================= */
+.lesson-list { padding: 20px; display: flex; flex-direction: column; gap: 10px; }
+.lesson-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 16px 18px;
+  cursor: pointer;
+  transition: border-color .15s, box-shadow .15s;
+  display: flex; align-items: center; justify-content: space-between;
+  box-shadow: var(--shadow);
+}
+.lesson-card:active { transform: scale(.99); }
+.lesson-card:hover { border-color: var(--green); }
+.lesson-card-left { flex: 1; }
+.lesson-title { font-weight: 600; font-size: 15px; margin-bottom: 3px; }
+.lesson-meta { font-size: 12px; color: var(--text3); }
+.lesson-arrow { font-size: 18px; color: var(--text3); margin-left: 12px; }
+
+/* =============================================
+   READING SCREEN
+============================================= */
+.reading-wrap { display: none; }
+.reading-wrap.active { display: block; }
+
+.reading-header {
+  padding: 16px 20px 12px;
+  border-bottom: 1px solid var(--border);
+  display: flex; align-items: center; gap: 12px;
+}
+.btn-back {
+  font-size: 13px; font-weight: 500;
+  padding: 6px 12px;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: transparent; color: var(--text2);
+  cursor: pointer; transition: background .15s;
+  white-space: nowrap;
+}
+.btn-back:active { background: var(--border); }
+.reading-title { font-family: 'DM Serif Display', serif; font-size: 16px; flex: 1; }
+
+/* TIMER BAR */
+.timer-bar {
+  padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  background: var(--surface);
+  border-bottom: 1px solid var(--border);
+  gap: 12px;
+  position: sticky;
+  top: 49px;
+  z-index: 40;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+}
+.timer-display {
+  font-family: 'DM Serif Display', serif;
+  font-size: 36px; letter-spacing: -1px;
+  color: var(--text); min-width: 90px;
+}
+.timer-display.running { color: var(--green); }
+.click-counter {
+  font-size: 13px; color: var(--text2);
+  display: flex; align-items: center; gap: 6px;
+}
+.click-badge {
+  font-size: 18px; font-weight: 600; color: var(--text);
+  min-width: 28px; text-align: center;
+}
+.timer-btns { display: flex; gap: 8px; }
+.btn-start, .btn-stop, .btn-reset {
+  padding: 9px 18px;
+  border-radius: var(--radius);
+  border: none; font-size: 14px; font-weight: 600;
+  cursor: pointer; transition: background .15s, transform .1s;
+  font-family: 'DM Sans', sans-serif;
+}
+.btn-start { background: var(--green); color: #fff; }
+.btn-start:active { transform: scale(.97); }
+.btn-stop { background: var(--red); color: #fff; }
+.btn-stop:active { transform: scale(.97); }
+.btn-reset { background: var(--border); color: var(--text2); }
+.btn-reset:active { transform: scale(.97); }
+.btn-hidden { display: none !important; }
+
+/* HINT BAR */
+.hint-bar {
+  padding: 8px 20px;
+  font-size: 12px; color: var(--text3);
+  background: var(--bg);
+  border-bottom: 1px solid var(--border);
+}
+
+/* =============================================
+   PASSAGE
+============================================= */
+.passage { padding: 20px; }
+
+.section-label {
+  font-size: 10px; font-weight: 700; letter-spacing: .1em;
+  text-transform: uppercase; color: var(--text3);
+  margin: 20px 0 8px;
+}
+.section-label:first-child { margin-top: 0; }
+
+.sub-heading {
+  font-size: 12px; font-weight: 600; color: var(--text2);
+  border-left: 2px solid var(--border);
+  padding-left: 8px;
+  margin: 14px 0 6px;
+}
+
+.passage-block {
+  font-size: 17px;
+  line-height: 2.2;
+  margin-bottom: 10px;
+  color: var(--text);
+}
+.passage-block.dialogue { padding-left: 8px; }
+.speaker { font-weight: 700; color: var(--text2); margin-right: 4px; font-size: 15px; }
+
+/* MODEL paragraphs */
+.model-block {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 14px 16px;
+  margin-bottom: 8px;
+  box-shadow: var(--shadow);
+}
+.model-num {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 20px; height: 20px; border-radius: 50%;
+  font-size: 11px; font-weight: 700; color: #fff;
+  margin-right: 6px; vertical-align: middle; flex-shrink: 0;
+}
+.num-1 { background: #1a7f5a; }
+.num-2 { background: #7b68b5; }
+.num-3 { background: #c0605a; }
+
+/* =============================================
+   WORD TOKEN
+============================================= */
+.w {
+  display: inline;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 1px 2px;
+  transition: background .12s, color .12s;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+}
+.w:hover { background: var(--green-bg); color: var(--green); }
+.w.clicked {
+  background: var(--green-bg);
+  color: var(--green);
+  font-weight: 500;
+}
+.w.tapped { background: var(--green-bg); color: var(--green); }
+
+/* =============================================
+   TOOLTIP
+============================================= */
+.tooltip {
+  position: fixed;
+  display: none;
+  background: var(--text);
+  color: var(--bg);
+  font-size: 13px; font-weight: 600;
+  padding: 7px 13px;
+  border-radius: 8px;
+  z-index: 200;
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.25);
+  max-width: 240px;
+  white-space: normal;
+  text-align: center;
+  line-height: 1.5;
+}
+.tooltip.show { display: block; }
+.tooltip-pos { font-size: 10px; opacity: .65; margin-top: 2px; }
+
+/* =============================================
+   RESULT PANEL
+============================================= */
+.result-panel {
+  display: none;
+  margin: 20px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 24px;
+  box-shadow: var(--shadow);
+  text-align: center;
+}
+.result-panel.show { display: block; }
+.result-emoji { font-size: 48px; margin-bottom: 12px; }
+.result-title { font-family: 'DM Serif Display', serif; font-size: 22px; margin-bottom: 16px; }
+.result-grid {
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: 12px; margin-bottom: 20px;
+}
+.result-card {
+  background: var(--bg);
+  border-radius: var(--radius);
+  padding: 14px;
+}
+.result-val { font-size: 28px; font-weight: 700; color: var(--green); font-family: 'DM Serif Display', serif; }
+.result-lbl { font-size: 12px; color: var(--text3); margin-top: 4px; }
+.result-note { font-size: 13px; color: var(--text2); line-height: 1.6; }
+.btn-retry {
+  margin-top: 16px;
+  width: 100%;
+  padding: 12px;
+  border-radius: var(--radius);
+  background: var(--green); color: #fff;
+  border: none; font-size: 15px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+}
+.btn-retry:active { opacity: .85; }
+
+/* =============================================
+   BOTTOM HINT
+============================================= */
+.bottom-hint {
+  position: fixed; bottom: 0; left: 0; right: 0;
+  background: var(--surface);
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--text3);
+  text-align: center; padding: 10px;
+  z-index: 40;
+}
+
+/* =============================================
+   LOCKED OVERLAY (before start)
+============================================= */
+.passage.locked { pointer-events: none; filter: blur(3px); user-select: none; }
+.start-overlay {
+  position: sticky; top: 120px;
+  text-align: center; padding: 20px;
+  z-index: 10;
+}
+.start-overlay p { font-size: 14px; color: var(--text2); margin-bottom: 12px; }
+.btn-start-big {
+  padding: 14px 36px;
+  border-radius: var(--radius);
+  background: var(--green); color: #fff;
+  border: none; font-size: 16px; font-weight: 600;
+  cursor: pointer; font-family: 'DM Sans', sans-serif;
+  box-shadow: 0 4px 12px rgba(26,127,90,0.3);
+  transition: transform .1s;
+}
+.btn-start-big:active { transform: scale(.97); }
+
+/* WORD LIST */
+.word-list-wrap {
+  border-top: 1px solid var(--border);
+  padding-top: 14px;
+}
+.word-list-title {
+  font-size: 13px; font-weight: 700;
+  color: var(--text2); margin-bottom: 10px;
+  letter-spacing: .03em;
+}
+.word-list {
+  display: flex; flex-wrap: wrap; gap: 8px;
+}
+.word-chip {
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 6px 10px;
+  display: flex; flex-direction: column;
+  gap: 2px;
+}
+.word-chip-en {
+  font-size: 14px; font-weight: 600;
+  color: var(--text);
+}
+.word-chip-jp {
+  font-size: 11px; color: var(--text2);
+}
+.word-chip-pos {
+  font-size: 10px; color: var(--text3);
+}
+</style>
+</head>
+<body>
+<div class="app">
+
+  <!-- HEADER -->
+  <header class="header">
+    <div class="logo">Reading<em>Sharp</em></div>
+    <div class="unit-tag" id="headerUnit">Unit 2</div>
+  </header>
+
+  <!-- ==================== LESSON LIST ==================== -->
+  <div id="lessonList">
+    <div class="lesson-list" id="lessonListInner"></div>
+  </div>
+
+  <!-- ==================== READING SCREEN ==================== -->
+  <div class="reading-wrap" id="readingWrap">
+
+    <div class="reading-header">
+      <button class="btn-back" id="btnBack">← 一覧</button>
+      <div class="reading-title" id="readingTitle"></div>
+    </div>
+
+    <!-- TIMER BAR -->
+    <div class="timer-bar">
+      <div class="timer-display" id="timerDisplay">0:00</div>
+      <div class="click-counter">
+        <span>クリック</span>
+        <span class="click-badge" id="clickBadge">0</span>
+        <span>回</span>
+      </div>
+      <div class="timer-btns">
+        <button class="btn-start" id="btnStart">スタート ▶</button>
+        <button class="btn-stop  btn-hidden" id="btnStop">ストップ ■</button>
+        <button class="btn-reset btn-hidden" id="btnReset">やり直し</button>
+      </div>
+    </div>
+
+    <div class="hint-bar" id="hintBar">↑ スタートを押してから読み始めよう</div>
+
+    <!-- START OVERLAY -->
+    <div class="start-overlay" id="startOverlay">
+      <p>スタートを押して読み始めよう</p>
+      <button class="btn-start-big" id="btnStartBig">スタート ▶</button>
+    </div>
+
+    <!-- PASSAGE (locked until start) -->
+    <div class="passage locked" id="passage"></div>
+
+    <!-- RESULT -->
+    <div class="result-panel" id="resultPanel">
+      <div class="result-emoji">📖</div>
+      <div class="result-title">読了！お疲れ様！</div>
+      <div class="result-grid">
+        <div class="result-card">
+          <div class="result-val" id="resultTime">—</div>
+          <div class="result-lbl">読了タイム</div>
+        </div>
+        <div class="result-card">
+          <div class="result-val" id="resultClicks">—</div>
+          <div class="result-lbl">クリック回数</div>
+        </div>
+      </div>
+      <div class="result-note" id="resultNote"></div>
+      <div class="word-list-wrap" id="wordListWrap" style="display:none; margin-top:16px; text-align:left;">
+        <div class="word-list-title">📋 チェックした単語</div>
+        <div class="word-list" id="wordList"></div>
+      </div>
+      <button class="btn-retry" id="btnRetry">もう一度読む</button>
+    </div>
+
+  </div><!-- /reading-wrap -->
+
+</div><!-- /app -->
+
+<!-- TOOLTIP -->
+<div class="tooltip" id="tooltip">
+  <div id="tooltipText"></div>
+  <div class="tooltip-pos" id="tooltipPos"></div>
+</div>
+
+<!-- BOTTOM HINT -->
+<div class="bottom-hint" id="bottomHint">単語をタップすると訳が出ます</div>
+
+<script>
+/* =============================================
+   ★★★ 教材データ ★★★
+   UNITを追加するときは UNITS 配列に追加してください。
+   各UNITは id / title / lessons[] を持ちます。
+   lessons[] の中身は従来通りです。
+============================================= */
+const UNITS = [
+  {
+    id: "unit2",
+    title: "Unit 2",
+    lessons: [
+  {
+    id: "unit2-part1",
+    title: "Part 1 — p.20",
+    sections: [
+      {
+        label: "Part 1",
+        blocks: [
+          { type: "text", words: [
+            {s:"I",m:"私は"},{s:"like",m:"好きです"},{s:"ramen,",m:"ラーメン、"},{s:"especially",m:"特に",p:"副詞"},{s:"tonkotsu",m:"豚骨"},{s:"ramen.",m:"ラーメンが"},
+          ]},
+          { type: "text", words: [
+            {s:"When",m:"〜するとき",p:"接続詞"},{s:"I",m:"私が"},{s:"go",m:"行く"},{s:"to",m:"〜へ"},{s:"a",m:"（冠詞）"},{s:"ramen",m:"ラーメン"},{s:"restaurant,",m:"レストランに"},{s:"I",m:"私は"},{s:"always",m:"いつも",p:"副詞"},{s:"order",m:"注文します"},{s:"tonkotsu",m:"豚骨"},{s:"ramen.",m:"ラーメンを"},
+          ]},
+          { type: "text", words: [
+            {s:"My",m:"私の"},{s:"favorite",m:"いちばん好きな",p:"形容詞"},{s:"topping",m:"トッピングは"},{s:"is",m:"〜です",p:"be動詞"},{s:"corn.",m:"コーン"},
+          ]},
+          { type: "text", words: [
+            {s:"Actually,",m:"実は、",p:"副詞"},{s:"there",m:"〜があります"},{s:"are",m:"あります"},{s:"various",m:"いろいろな",p:"形容詞"},{s:"ramen",m:"ラーメンの"},{s:"flavors",m:"味が"},{s:"in",m:"〜の中に"},{s:"Japan:",m:"日本には"},{s:"soy",m:"醤油の"},{s:"sauce,",m:"ソース・たれ、"},{s:"salt,",m:"塩、"},{s:"miso,",m:"味噌、"},{s:"tonkotsu,",m:"豚骨、"},{s:"and",m:"そして"},{s:"so",m:"〜など"},{s:"on.",m:"〜など"},
+          ]},
+          { type: "text", words: [
+            {s:"I",m:"私は"},{s:"didn't",m:"〜しなかった"},{s:"know",m:"知っていた"},{s:"about",m:"〜について"},{s:"miso",m:"味噌"},{s:"ramen",m:"ラーメンのことを"},{s:"when",m:"〜したとき",p:"接続詞"},{s:"I",m:"私が"},{s:"lived",m:"住んでいた"},{s:"in",m:"〜に"},{s:"the",m:"（冠詞）"},{s:"U.K.",m:"イギリスに"},
+          ]},
+          { type: "text", words: [
+            {s:"I",m:"私は"},{s:"want",m:"〜したい"},{s:"to",m:"〜すること"},{s:"try",m:"試してみたい"},{s:"it.",m:"それを"},
+          ]},
+        ]
+      }
+    ]
+  },
+  {
+    id: "unit2-part2",
+    title: "Part 2 — p.21",
+    sections: [
+      {
+        label: "Part 2",
+        blocks: [
+          { type: "dialogue", speaker: "Jun:", words: [
+            {s:"Nice",m:"すてきな"},{s:"speech,",m:"スピーチ、"},{s:"Anna.",m:"アナ"},{s:"I",m:"ぼくも"},{s:"love",m:"大好き"},{s:"ramen,",m:"ラーメンが"},{s:"too.",m:"〜も",p:"副詞"},
+          ]},
+          { type: "text", words: [
+            {s:"There's",m:"〜があります"},{s:"a",m:"（冠詞）"},{s:"good",m:"良い"},{s:"Sapporo",m:"札幌"},{s:"ramen",m:"ラーメンの"},{s:"restaurant",m:"レストランが"},{s:"near",m:"〜の近くに",p:"前置詞"},{s:"my",m:"ぼくの"},{s:"house.",m:"家の"},
+          ]},
+          { type: "text", words: [
+            {s:"It's",m:"それは"},{s:"famous",m:"有名です"},{s:"for",m:"〜で"},{s:"delicious",m:"おいしい",p:"形容詞"},{s:"miso",m:"味噌"},{s:"ramen.",m:"ラーメンで"},
+          ]},
+          { type: "dialogue", speaker: "Anna:", words: [
+            {s:"Really?",m:"本当に？"},{s:"I",m:"私は"},{s:"want",m:"〜したい"},{s:"to",m:"〜すること"},{s:"try",m:"食べてみたい"},{s:"miso",m:"味噌"},{s:"ramen",m:"ラーメンを"},{s:"sometime.",m:"いつか",p:"副詞"},
+          ]},
+          { type: "dialogue", speaker: "Jun:", words: [
+            {s:"Riko,",m:"理子、"},{s:"Eddy,",m:"エディ、"},{s:"and",m:"と"},{s:"I",m:"ぼくで"},{s:"will",m:"〜するつもり",p:"助動詞"},{s:"go",m:"行く"},{s:"to",m:"〜へ"},{s:"the",m:"その"},{s:"restaurant",m:"レストランへ"},{s:"this",m:"今度の"},{s:"Sunday.",m:"日曜日に"},
+          ]},
+          { type: "text", words: [
+            {s:"If",m:"もし〜なら",p:"接続詞"},{s:"you",m:"あなたが"},{s:"have",m:"持っている"},{s:"time,",m:"時間を"},{s:"you",m:"あなたは"},{s:"can",m:"〜できる",p:"助動詞"},{s:"come",m:"来る"},{s:"with",m:"〜と一緒に"},{s:"us.",m:"ぼくたちと"},
+          ]},
+          { type: "dialogue", speaker: "Anna:", words: [
+            {s:"I'd",m:"私は〜したい"},{s:"love",m:"喜んで"},{s:"to!",m:"〜すること"},
+          ]},
+          { type: "dialogue", speaker: "Jun:", words: [
+            {s:"You",m:"あなたは"},{s:"can",m:"〜できる",p:"助動詞"},{s:"add",m:"追加できる"},{s:"an",m:"（冠詞）"},{s:"egg,",m:"卵、"},{s:"butter,",m:"バター、"},{s:"or",m:"または"},{s:"corn",m:"コーンを"},{s:"to",m:"〜に"},{s:"your",m:"あなたの"},{s:"ramen",m:"ラーメンに"},{s:"if",m:"もし〜なら",p:"接続詞"},{s:"you",m:"あなたが"},{s:"want.",m:"ほしければ"},
+          ]},
+        ]
+      }
+    ]
+  },
+  {
+    id: "unit2-rat1",
+    title: "Read and Think 1 — p.22",
+    sections: [
+      {
+        label: "Read and Think 1",
+        blocks: [
+          { type: "heading", words: [{s:"Various Ramen Flavors in Japan",m:"日本のラーメンのいろいろな味"}] },
+          { type: "text", words: [
+            {s:"If",m:"もし〜なら",p:"接続詞"},{s:"you're",m:"あなたが"},{s:"interested",m:"興味がある",p:"形容詞"},{s:"in",m:"〜に"},{s:"Japanese",m:"日本の"},{s:"food,",m:"食べ物に"},{s:"don't",m:"〜してはいけない"},{s:"forget",m:"忘れる"},{s:"ramen!",m:"ラーメンを"},
+          ]},
+          { type: "text", words: [
+            {s:"There",m:"〜があります"},{s:"are",m:"あります"},{s:"many",m:"たくさんの"},{s:"kinds",m:"種類の"},{s:"of",m:"〜の"},{s:"ramen",m:"ラーメンが"},{s:"in",m:"〜に"},{s:"Japan:",m:"日本には"},{s:"Sapporo",m:"札幌"},{s:"ramen,",m:"ラーメン、"},{s:"Kitakata",m:"喜多方"},{s:"ramen,",m:"ラーメン、"},{s:"Hakata",m:"博多"},{s:"ramen,",m:"ラーメン、"},{s:"and",m:"そして"},{s:"so",m:"〜など"},{s:"on.",m:"〜など"},
+          ]},
+          { type: "heading", words: [{s:"Sapporo ramen in Hokkaido",m:"北海道の札幌ラーメン"}] },
+          { type: "text", words: [
+            {s:"Sapporo",m:"札幌"},{s:"ramen",m:"ラーメンは"},{s:"uses",m:"使っています"},{s:"a",m:"（冠詞）"},{s:"miso-based",m:"味噌ベースの"},{s:"soup.",m:"スープを"},
+          ]},
+          { type: "text", words: [
+            {s:"It",m:"それは"},{s:"stays",m:"〜のままでいる"},{s:"warm",m:"温かい"},{s:"because",m:"なぜなら〜だから",p:"接続詞"},{s:"the",m:"その"},{s:"soup",m:"スープが"},{s:"is",m:"〜です",p:"be動詞"},{s:"thick.",m:"とろみがある"},
+          ]},
+          { type: "text", words: [
+            {s:"So,",m:"そのため、"},{s:"many",m:"たくさんの"},{s:"people",m:"人々が"},{s:"there",m:"そこでは"},{s:"enjoy",m:"楽しむ・食べる"},{s:"it",m:"それを"},{s:"in",m:"〜に"},{s:"the",m:"その"},{s:"cold",m:"寒い"},{s:"winter.",m:"冬に"},
+          ]},
+          { type: "text", words: [
+            {s:"The",m:"（冠詞）"},{s:"recommended",m:"おすすめの"},{s:"topping",m:"トッピングは"},{s:"is",m:"〜です",p:"be動詞"},{s:"local",m:"地元の",p:"形容詞"},{s:"sweet",m:"甘い"},{s:"corn!",m:"コーンです"},
+          ]},
+          { type: "heading", words: [{s:"Kitakata ramen in Fukushima",m:"福島の喜多方ラーメン"}] },
+          { type: "text", words: [
+            {s:"This",m:"この"},{s:"ramen",m:"ラーメンは"},{s:"uses",m:"使っています"},{s:"a",m:"（冠詞）"},{s:"soy",m:"醤油の"},{s:"sauce-based",m:"ソースベースの"},{s:"soup.",m:"スープを"},
+          ]},
+          { type: "text", words: [
+            {s:"Local",m:"地元の",p:"形容詞"},{s:"noodle",m:"麺の"},{s:"manufacturers",m:"製麺業者が"},{s:"make",m:"作っています"},{s:"the",m:"その"},{s:"noodles",m:"麺を"},{s:"with",m:"〜を使って"},{s:"water",m:"水を"},{s:"from",m:"〜からの"},{s:"mountains",m:"山から"},{s:"in",m:"〜の"},{s:"the",m:"その"},{s:"area.",m:"地域の"},
+          ]},
+          { type: "text", words: [
+            {s:"Some",m:"いくつかの"},{s:"restaurants",m:"レストランは"},{s:"open",m:"開店する"},{s:"early",m:"早く",p:"副詞"},{s:"in",m:"〜に"},{s:"the",m:"その"},{s:"morning",m:"朝に"},{s:"because",m:"なぜなら〜だから",p:"接続詞"},{s:"people",m:"人々が"},{s:"there",m:"そこの"},{s:"often",m:"よく",p:"副詞"},{s:"eat",m:"食べる"},{s:"ramen",m:"ラーメンを"},{s:"for",m:"〜として"},{s:"breakfast.",m:"朝食として"},
+          ]},
+        ]
+      }
+    ]
+  },
+  {
+    id: "unit2-rat2",
+    title: "Read and Think 2 — p.24",
+    sections: [
+      {
+        label: "Read and Think 2",
+        blocks: [
+          { type: "text", words: [
+            {s:"Ramen",m:"ラーメンは"},{s:"came",m:"来た・発祥した"},{s:"from",m:"〜から"},{s:"China,",m:"中国から、"},{s:"and",m:"そして"},{s:"now",m:"今では",p:"副詞"},{s:"it",m:"それは"},{s:"is",m:"〜です",p:"be動詞"},{s:"a",m:"（冠詞）"},{s:"very",m:"とても",p:"副詞"},{s:"popular",m:"人気のある",p:"形容詞"},{s:"Japanese",m:"日本の"},{s:"food.",m:"食べ物です"},
+          ]},
+          { type: "text", words: [
+            {s:"There",m:"〜があります"},{s:"are",m:"あります"},{s:"various",m:"いろいろな",p:"形容詞"},{s:"kinds",m:"種類の"},{s:"of",m:"〜の"},{s:"ramen",m:"ラーメンが"},{s:"in",m:"〜に"},{s:"Japan.",m:"日本には"},
+          ]},
+          { type: "text", words: [
+            {s:"These",m:"これらの"},{s:"different",m:"ちがう・いろいろな",p:"形容詞"},{s:"kinds",m:"種類の"},{s:"of",m:"〜の"},{s:"ramen",m:"ラーメンは"},{s:"reflect",m:"映し出している"},{s:"the",m:"（冠詞）"},{s:"different",m:"さまざまな"},{s:"climates,",m:"気候、"},{s:"food",m:"食の"},{s:"cultures,",m:"文化、"},{s:"people's",m:"人々の"},{s:"lives,",m:"生活、"},{s:"and",m:"そして"},{s:"the",m:"（冠詞）"},{s:"creativity",m:"創造性を"},{s:"of",m:"〜の"},{s:"chefs.",m:"料理人の"},
+          ]},
+          { type: "text", words: [
+            {s:"Here",m:"ここに"},{s:"is",m:"〜があります"},{s:"another",m:"もう1つの",p:"形容詞"},{s:"example",m:"例が"},{s:"of",m:"〜の"},{s:"a",m:"（冠詞）"},{s:"foreign",m:"外国の",p:"形容詞"},{s:"food",m:"料理の"},{s:"with",m:"〜を持つ"},{s:"Japanese",m:"日本の"},{s:"variations.",m:"バリエーション"},
+          ]},
+          { type: "text", words: [
+            {s:"Spaghetti",m:"スパゲッティは"},{s:"came",m:"来た・発祥した"},{s:"from",m:"〜から"},{s:"Italy,",m:"イタリアから、"},{s:"but",m:"しかし",p:"接続詞"},{s:"a",m:"（冠詞）"},{s:"Japanese",m:"日本人の"},{s:"chef",m:"シェフが"},{s:"created",m:"創作した"},{s:"spaghetti",m:"スパゲッティ"},{s:"Napolitan",m:"ナポリタンを"},{s:"in",m:"〜で"},{s:"Japan.",m:"日本で"},
+          ]},
+          { type: "text", words: [
+            {s:"He",m:"彼は"},{s:"made",m:"作った"},{s:"it",m:"それを"},{s:"with",m:"〜を使って"},{s:"a",m:"（冠詞）"},{s:"special",m:"特製の",p:"形容詞"},{s:"tomato",m:"トマト"},{s:"sauce",m:"ソースを"},{s:"and",m:"そして"},{s:"named",m:"名づけた"},{s:"the",m:"その"},{s:"dish",m:"料理を"},{s:"Napolitan",m:"ナポリタンと"},{s:"after",m:"〜にちなんで",p:"前置詞"},{s:"Naples",m:"ナポリに"},{s:"in",m:"〜の"},{s:"Italy.",m:"イタリアの"},
+          ]},
+          { type: "text", words: [
+            {s:"Now,",m:"今では、"},{s:"there",m:"〜があります"},{s:"are",m:"あります"},{s:"many",m:"たくさんの"},{s:"original",m:"独創的な",p:"形容詞"},{s:"Japanese",m:"日本の"},{s:"spaghetti",m:"スパゲッティの"},{s:"flavors:",m:"味があります："},{s:"mentaiko",m:"明太子"},{s:"spaghetti",m:"スパゲッティや"},{s:"and",m:"そして"},{s:"natto",m:"納豆"},{s:"spaghetti.",m:"スパゲッティです"},
+          ]},
+          { type: "text", words: [
+            {s:"I",m:"私は"},{s:"think",m:"〜と思う",p:"動詞"},{s:"food",m:"食べ物は"},{s:"travels",m:"めぐる"},{s:"around",m:"〜の周りを"},{s:"the",m:"（冠詞）"},{s:"world",m:"世界を"},{s:"and",m:"そして"},{s:"changes",m:"変化する"},{s:"in",m:"〜で"},{s:"each",m:"それぞれの",p:"形容詞"},{s:"place.",m:"場所で"},
+          ]},
+          { type: "text", words: [
+            {s:"It",m:"それは"},{s:"is",m:"〜です",p:"be動詞"},{s:"very",m:"とても",p:"副詞"},{s:"interesting.",m:"興味深い"},
+          ]},
+        ]
+      }
+    ]
+  },
+  {
+    id: "unit2-model",
+    title: "モデル文（紹介文の型）",
+    sections: [
+      {
+        label: "モデル文",
+        blocks: [
+          { type: "heading", words: [{s:"Model ① — Sapporo Ramen",m:"モデル①：札幌ラーメン"}] },
+          { type: "model", modelNum: 1, words: [
+            {s:"I",m:"私は"},{s:"like",m:"好きです"},{s:"Sapporo",m:"札幌"},{s:"ramen.",m:"ラーメンが"},{s:"It",m:"それは"},{s:"is",m:"〜です",p:"be動詞"},{s:"a",m:"（冠詞）"},{s:"popular",m:"人気のある",p:"形容詞"},{s:"ramen",m:"ラーメンです"},{s:"in",m:"〜で"},{s:"Hokkaido.",m:"北海道の"},
+          ]},
+          { type: "model", modelNum: 2, words: [
+            {s:"It",m:"それは"},{s:"has",m:"〜を持っている"},{s:"a",m:"（冠詞）"},{s:"miso-based",m:"味噌ベースの"},{s:"soup.",m:"スープを"},{s:"The",m:"その"},{s:"soup",m:"スープは"},{s:"is",m:"〜です",p:"be動詞"},{s:"thick,",m:"とろみがあるので、"},{s:"so",m:"そのため"},{s:"it",m:"それは"},{s:"stays",m:"〜のままでいる"},{s:"warm.",m:"温かい"},{s:"You",m:"あなたは"},{s:"can",m:"〜できる",p:"助動詞"},{s:"add",m:"追加できます"},{s:"corn",m:"コーンを"},{s:"to",m:"〜に"},{s:"your",m:"あなたの"},{s:"ramen.",m:"ラーメンに"},
+          ]},
+          { type: "model", modelNum: 3, words: [
+            {s:"I",m:"私は"},{s:"think",m:"〜と思う",p:"動詞"},{s:"you",m:"あなたは"},{s:"should",m:"〜すべき",p:"助動詞"},{s:"try",m:"試してみるべき"},{s:"it",m:"それを"},{s:"because",m:"なぜなら〜だから",p:"接続詞"},{s:"it",m:"それは"},{s:"is",m:"〜です",p:"be動詞"},{s:"very",m:"とても",p:"副詞"},{s:"good",m:"良い"},{s:"in",m:"〜に"},{s:"winter.",m:"冬に"},{s:"When",m:"〜するとき",p:"接続詞"},{s:"you",m:"あなたが"},{s:"eat",m:"食べると"},{s:"it,",m:"それを、"},{s:"you",m:"あなたは"},{s:"will",m:"〜でしょう",p:"助動詞"},{s:"feel",m:"感じる"},{s:"warm!",m:"温かく！"},
+          ]},
+          { type: "heading", words: [{s:"Model ② — Kitakata Ramen",m:"モデル②：喜多方ラーメン"}] },
+          { type: "model", modelNum: 1, words: [
+            {s:"I",m:"私は"},{s:"like",m:"好きです"},{s:"Kitakata",m:"喜多方"},{s:"ramen.",m:"ラーメンが"},{s:"It",m:"それは"},{s:"is",m:"〜です",p:"be動詞"},{s:"a",m:"（冠詞）"},{s:"popular",m:"人気のある",p:"形容詞"},{s:"ramen",m:"ラーメンです"},{s:"in",m:"〜で"},{s:"Fukushima.",m:"福島の"},
+          ]},
+          { type: "model", modelNum: 2, words: [
+            {s:"It",m:"それは"},{s:"has",m:"〜を持っている"},{s:"a",m:"（冠詞）"},{s:"soy",m:"醤油の"},{s:"sauce-based",m:"ソースベースの"},{s:"soup.",m:"スープを"},{s:"The",m:"その"},{s:"noodles",m:"麺は"},{s:"are",m:"〜です",p:"be動詞"},{s:"made",m:"作られている"},{s:"with",m:"〜を使って"},{s:"water",m:"水で"},{s:"from",m:"〜からの"},{s:"mountains.",m:"山からの"},{s:"Some",m:"いくつかの"},{s:"restaurants",m:"レストランは"},{s:"open",m:"開いています"},{s:"early",m:"早く",p:"副詞"},{s:"in",m:"〜に"},{s:"the",m:"（冠詞）"},{s:"morning.",m:"朝に"},
+          ]},
+          { type: "model", modelNum: 3, words: [
+            {s:"I",m:"私は"},{s:"think",m:"〜と思う",p:"動詞"},{s:"you",m:"あなたは"},{s:"should",m:"〜すべき",p:"助動詞"},{s:"try",m:"試してみるべき"},{s:"Kitakata",m:"喜多方"},{s:"ramen",m:"ラーメンを"},{s:"because",m:"なぜなら〜だから",p:"接続詞"},{s:"it",m:"それは"},{s:"has",m:"持っている"},{s:"a",m:"（冠詞）"},{s:"special",m:"特別な",p:"形容詞"},{s:"local",m:"地元の",p:"形容詞"},{s:"taste.",m:"味を"},{s:"When",m:"〜するとき",p:"接続詞"},{s:"you",m:"あなたが"},{s:"eat",m:"食べると"},{s:"it,",m:"それを、"},{s:"you",m:"あなたは"},{s:"will",m:"〜でしょう",p:"助動詞"},{s:"love",m:"好きになる"},{s:"it!",m:"それが！"},
+          ]},
+        ]
+      }
+    ]
+  }
+    ] // end unit2 lessons
+  }
+  // ★ Unit 3以降はここに追加 ★
+  // {
+  //   id: "unit3",
+  //   title: "Unit 3",
+  //   lessons: [ ... ]
+  // }
+];
+
+/* =============================================
+   STATE
+============================================= */
+let state = {
+  currentLesson: null,
+  timerStart: null,
+  timerInterval: null,
+  elapsed: 0,
+  running: false,
+  finished: false,
+  clicks: 0,
+  clickedWords: [], // { s: surface, m: meaning, p: pos }
+};
+
+/* =============================================
+   NAVIGATION — 3 screens: UNIT → LESSON → READING
+============================================= */
+// screen = 'units' | 'lessons' | 'reading'
+let nav = { screen: 'units', currentUnit: null };
+
+function countWords(lesson) {
+  let n = 0;
+  lesson.sections.forEach(sec => sec.blocks.forEach(b => { if (b.words) n += b.words.length; }));
+  return n;
+}
+
+/* ---- SCREEN 1: Unit list ---- */
+function renderUnitList() {
+  nav.screen = 'units';
+  nav.currentUnit = null;
+  const el = document.getElementById('lessonListInner');
+  el.innerHTML = UNITS.map(u => `
+    <div class="lesson-card" data-uid="${u.id}">
+      <div class="lesson-card-left">
+        <div class="lesson-title">${u.title}</div>
+        <div class="lesson-meta">${u.lessons.length} パート</div>
+      </div>
+      <div class="lesson-arrow">›</div>
+    </div>
+  `).join('');
+  el.querySelectorAll('.lesson-card').forEach(card => {
+    card.addEventListener('click', () => renderLessonList(card.dataset.uid));
+  });
+  document.getElementById('headerUnit').textContent = 'ReadingSharp';
+  document.getElementById('lessonList').style.display = 'block';
+  document.getElementById('readingWrap').classList.remove('active');
+  document.getElementById('bottomHint').textContent = 'Unitを選んでください';
+}
+
+/* ---- SCREEN 2: Lesson list ---- */
+function renderLessonList(unitId) {
+  nav.screen = 'lessons';
+  nav.currentUnit = UNITS.find(u => u.id === unitId);
+  if (!nav.currentUnit) return;
+  const el = document.getElementById('lessonListInner');
+  el.innerHTML = `
+    <div style="padding:12px 0 4px">
+      <button class="btn-back" id="btnBackToUnits">← Unit一覧</button>
+    </div>
+    ` + nav.currentUnit.lessons.map(l => `
+    <div class="lesson-card" data-id="${l.id}">
+      <div class="lesson-card-left">
+        <div class="lesson-title">${l.title}</div>
+        <div class="lesson-meta">${countWords(l)} 語</div>
+      </div>
+      <div class="lesson-arrow">›</div>
+    </div>
+  `).join('');
+  document.getElementById('btnBackToUnits').addEventListener('click', renderUnitList);
+  el.querySelectorAll('.lesson-card').forEach(card => {
+    card.addEventListener('click', () => openLesson(card.dataset.id));
+  });
+  document.getElementById('headerUnit').textContent = nav.currentUnit.title;
+  document.getElementById('lessonList').style.display = 'block';
+  document.getElementById('readingWrap').classList.remove('active');
+  document.getElementById('bottomHint').textContent = 'パートを選んでください';
+}
+
+/* ---- Helper: find lesson across all units ---- */
+function findLesson(id) {
+  for (const u of UNITS) {
+    const l = u.lessons.find(l => l.id === id);
+    if (l) return { lesson: l, unit: u };
+  }
+  return null;
+}
+
+/* =============================================
+   RENDER READING SCREEN
+============================================= */
+function openLesson(id) {
+  const found = findLesson(id);
+  if (!found) return;
+  state.currentLesson = found.lesson;
+  resetTimer();
+  state.clicks = 0;
+  state.clickedWords = [];
+  updateClickBadge();
+  document.getElementById('readingTitle').textContent = state.currentLesson.title;
+  document.getElementById('headerUnit').textContent = found.unit.title;
+  renderPassage(state.currentLesson);
+  document.getElementById('lessonList').style.display = 'none';
+  document.getElementById('readingWrap').classList.add('active');
+  document.getElementById('resultPanel').classList.remove('show');
+  document.getElementById('startOverlay').style.display = 'block';
+  document.getElementById('passage').classList.add('locked');
+  document.getElementById('hintBar').textContent = '↑ スタートを押してから読み始めよう';
+  document.getElementById('bottomHint').textContent = '単語をタップすると訳が出ます';
+  state.finished = false;
+  // button states
+  document.getElementById('btnStart').classList.remove('btn-hidden');
+  document.getElementById('btnStop').classList.add('btn-hidden');
+  document.getElementById('btnReset').classList.add('btn-hidden');
+  window.scrollTo(0, 0);
+}
+
+function renderPassage(lesson) {
+  const passage = document.getElementById('passage');
+  let html = '';
+  lesson.sections.forEach(sec => {
+    html += `<div class="section-label">${sec.label}</div>`;
+    sec.blocks.forEach(block => {
+      if (block.type === 'heading') {
+        html += `<div class="sub-heading">${block.words.map(w => `<span class="w" data-m="${esc(w.m)}" data-p="${esc(w.p||'')} " data-s="${esc(w.s)}">${esc(w.s)}</span>`).join(' ')}</div>`;
+      } else if (block.type === 'model') {
+        const numCls = `num-${block.modelNum}`;
+        const wordsHtml = block.words.map(w =>
+          `<span class="w" data-m="${esc(w.m)}" data-p="${esc(w.p||'')} " data-s="${esc(w.s)}">${esc(w.s)}</span>`
+        ).join(' ');
+        html += `<div class="model-block"><span class="model-num ${numCls}">①②③`[block.modelNum] + `</span>${wordsHtml}</div>`.replace(`①②③`[block.modelNum], ['','①','②','③'][block.modelNum]);
+      } else {
+        const cls = block.type === 'dialogue' ? 'passage-block dialogue' : 'passage-block';
+        const speaker = block.speaker ? `<span class="speaker">${esc(block.speaker)}</span>` : '';
+        const wordsHtml = block.words.map(w =>
+          `<span class="w" data-m="${esc(w.m)}" data-p="${esc(w.p||'')} " data-s="${esc(w.s)}">${esc(w.s)}</span>`
+        ).join(' ');
+        html += `<div class="${cls}">${speaker}${wordsHtml}</div>`;
+      }
+    });
+  });
+  passage.innerHTML = html;
+  // Attach word events — tooltip shows only on click/tap
+  let activeWord = null;
+  passage.querySelectorAll('.w').forEach(w => {
+    // Desktop: click to toggle tooltip
+    w.addEventListener('click', e => {
+      if (!state.running) return;
+      if (activeWord && activeWord !== w) {
+        activeWord.classList.remove('tapped');
+        hideTip();
+      }
+      if (activeWord === w) {
+        // 同じ単語を再クリック → 閉じる
+        w.classList.remove('tapped');
+        hideTip();
+        activeWord = null;
+      } else {
+        const isNew = !w.classList.contains('clicked');
+        w.classList.add('clicked');
+        w.classList.add('tapped');
+        activeWord = w;
+        if (isNew) {
+          state.clicks++;
+          state.clickedWords.push({ s: w.dataset.s || w.textContent.trim(), m: w.dataset.m || '', p: w.dataset.p || '' });
+          updateClickBadge();
+        }
+        showTip(w, e.clientX, e.clientY);
+      }
+    });
+    // Mobile: touchstart
+    w.addEventListener('touchstart', e => {
+      if (!state.running) return;
+      e.preventDefault();
+      const t = e.touches[0];
+      if (activeWord && activeWord !== w) {
+        activeWord.classList.remove('tapped');
+        hideTip();
+      }
+      if (activeWord === w) {
+        w.classList.remove('tapped');
+        hideTip();
+        activeWord = null;
+      } else {
+        const isNew = !w.classList.contains('clicked');
+        w.classList.add('clicked');
+        w.classList.add('tapped');
+        activeWord = w;
+        if (isNew) {
+          state.clicks++;
+          state.clickedWords.push({ s: w.dataset.s || w.textContent.trim(), m: w.dataset.m || '', p: w.dataset.p || '' });
+          updateClickBadge();
+        }
+        showTip(w, t.clientX, t.clientY);
+      }
+    }, { passive: false });
+  });
+  // テキスト外クリックで閉じる
+  passage.addEventListener('click', e => {
+    if (!e.target.classList.contains('w') && activeWord) {
+      activeWord.classList.remove('tapped');
+      hideTip();
+      activeWord = null;
+    }
+  });
+}
+
+function esc(v) {
+  return String(v||'').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+/* =============================================
+   TOOLTIP
+============================================= */
+const tooltip = document.getElementById('tooltip');
+const tooltipText = document.getElementById('tooltipText');
+const tooltipPos = document.getElementById('tooltipPos');
+
+function showTip(el, x, y) {
+  tooltipText.textContent = el.dataset.m || '';
+  tooltipPos.textContent = el.dataset.p || '';
+  tooltip.classList.add('show');
+  moveTip(x, y);
+}
+function moveTip(x, y) {
+  const tw = tooltip.offsetWidth, ww = window.innerWidth;
+  let left = x - tw / 2, top = y - 52;
+  if (left < 8) left = 8;
+  if (left + tw > ww - 8) left = ww - tw - 8;
+  if (top < 8) top = y + 20;
+  tooltip.style.left = left + 'px';
+  tooltip.style.top = top + 'px';
+}
+function hideTip() { tooltip.classList.remove('show'); }
+
+/* =============================================
+   TIMER
+============================================= */
+function startTimer() {
+  if (state.running) return;
+  state.running = true;
+  state.timerStart = Date.now() - state.elapsed;
+  state.timerInterval = setInterval(tickTimer, 100);
+  document.getElementById('timerDisplay').classList.add('running');
+  document.getElementById('passage').classList.remove('locked');
+  document.getElementById('startOverlay').style.display = 'none';
+  document.getElementById('hintBar').textContent = '読みながらわからない単語をタップしよう';
+  document.getElementById('btnStart').classList.add('btn-hidden');
+  document.getElementById('btnStop').classList.remove('btn-hidden');
+}
+
+function tickTimer() {
+  state.elapsed = Date.now() - state.timerStart;
+  document.getElementById('timerDisplay').textContent = formatTime(state.elapsed);
+}
+
+function stopTimer() {
+  if (!state.running) return;
+  state.running = false;
+  clearInterval(state.timerInterval);
+  document.getElementById('timerDisplay').classList.remove('running');
+  document.getElementById('btnStop').classList.add('btn-hidden');
+  document.getElementById('btnReset').classList.remove('btn-hidden');
+  showResult();
+}
+
+function resetTimer() {
+  clearInterval(state.timerInterval);
+  state.running = false;
+  state.elapsed = 0;
+  state.finished = false;
+  document.getElementById('timerDisplay').textContent = '0:00';
+  document.getElementById('timerDisplay').classList.remove('running');
+  document.getElementById('btnStart').classList.remove('btn-hidden');
+  document.getElementById('btnStop').classList.add('btn-hidden');
+  document.getElementById('btnReset').classList.add('btn-hidden');
+}
+
+function formatTime(ms) {
+  const s = Math.floor(ms / 1000);
+  const m = Math.floor(s / 60);
+  return `${m}:${String(s % 60).padStart(2, '0')}`;
+}
+
+function updateClickBadge() {
+  document.getElementById('clickBadge').textContent = state.clicks;
+}
+
+/* =============================================
+   RESULT
+============================================= */
+function showResult() {
+  const timeStr = formatTime(state.elapsed);
+  const clicks = state.clicks;
+  document.getElementById('resultTime').textContent = timeStr;
+  document.getElementById('resultClicks').textContent = `${clicks} 回`;
+
+  let note = '';
+  if (clicks === 0) note = '全ての単語を知っていた！素晴らしい 🎉';
+  else if (clicks <= 5) note = `${clicks}語をチェックした。ほぼ完璧！`;
+  else if (clicks <= 15) note = `${clicks}語をチェックした。もう一度読んで定着させよう。`;
+  else note = `${clicks}語をチェックした。繰り返し読んで語彙を増やそう！`;
+  document.getElementById('resultNote').textContent = note;
+
+  // Word list
+  const wrap = document.getElementById('wordListWrap');
+  const list = document.getElementById('wordList');
+  if (state.clickedWords.length > 0) {
+    list.innerHTML = state.clickedWords.map(w => `
+      <div class="word-chip">
+        <span class="word-chip-en">${esc(w.s.replace(/[.,!?:;]$/, ''))}</span>
+        <span class="word-chip-jp">${esc(w.m)}</span>
+        ${w.p ? `<span class="word-chip-pos">${esc(w.p)}</span>` : ''}
+      </div>
+    `).join('');
+    wrap.style.display = 'block';
+  } else {
+    wrap.style.display = 'none';
+  }
+
+  document.getElementById('resultPanel').classList.add('show');
+  state.finished = true;
+  // 結果パネルまでスクロール
+  document.getElementById('resultPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+}
+
+/* =============================================
+   BACK NAVIGATION
+============================================= */
+function goBack() {
+  clearInterval(state.timerInterval);
+  state.running = false;
+  hideTip();
+  // 現在のUnitのパート一覧に戻る
+  if (nav.currentUnit) {
+    renderLessonList(nav.currentUnit.id);
+  } else {
+    renderUnitList();
+  }
+}
+
+/* =============================================
+   EVENT LISTENERS
+============================================= */
+document.getElementById('btnStart').addEventListener('click', startTimer);
+document.getElementById('btnStartBig').addEventListener('click', startTimer);
+document.getElementById('btnStop').addEventListener('click', stopTimer);
+document.getElementById('btnReset').addEventListener('click', () => {
+  openLesson(state.currentLesson.id);
+});
+document.getElementById('btnBack').addEventListener('click', goBack);
+document.getElementById('btnRetry').addEventListener('click', () => {
+  openLesson(state.currentLesson.id);
+});
+
+/* =============================================
+   INIT
+============================================= */
+renderUnitList();
+</script>
+</body>
+</html>
