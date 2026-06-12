@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who am I? | I think Activity</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root {
+  --a1:#4ECDC4; --a2:#FF9F43; --b1:#A29BFE; --b2:#FF6B6B;
+  --bg:#1A1A2E; --surface:#16213E; --surface2:#1E2D50;
+  --text:#FFFFFF; --text2:rgba(255,255,255,0.55); --yellow:#FFE66D;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1rem 1rem 2rem;}
+.header{width:100%;max-width:600px;text-align:center;padding:1.2rem 0 0.6rem;}
+.header h1{font-family:'Boogaloo',cursive;font-size:26px;color:var(--yellow);margin-bottom:4px;}
+.header p{font-size:12px;color:var(--text2);}
+.instruction{font-size:12px;color:var(--text2);background:var(--surface2);border-radius:8px;padding:6px 12px;display:inline-block;margin-top:6px;}
+
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;width:100%;max-width:600px;margin-bottom:0.75rem;}
+.tab{padding:10px 4px;border-radius:10px;border:2px solid transparent;font-size:12px;font-weight:700;font-family:'Boogaloo',cursive;cursor:pointer;transition:all 0.2s;text-align:center;line-height:1.3;}
+.tab.t1{background:rgba(78,205,196,0.15);border-color:rgba(78,205,196,0.3);color:var(--a1);}
+.tab.t2{background:rgba(255,159,67,0.15);border-color:rgba(255,159,67,0.3);color:var(--a2);}
+.tab.t3{background:rgba(162,155,254,0.15);border-color:rgba(162,155,254,0.3);color:var(--b1);}
+.tab.t4{background:rgba(255,107,107,0.15);border-color:rgba(255,107,107,0.3);color:var(--b2);}
+.tab.t1.active{background:var(--a1);color:#111;border-color:var(--a1);}
+.tab.t2.active{background:var(--a2);color:#fff;border-color:var(--a2);}
+.tab.t3.active{background:var(--b1);color:#fff;border-color:var(--b1);}
+.tab.t4.active{background:var(--b2);color:#fff;border-color:var(--b2);}
+
+.progress-wrap{width:100%;max-width:600px;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:0.75rem;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+.f1{background:var(--a1);} .f2{background:var(--a2);} .f3{background:var(--b1);} .f4{background:var(--b2);}
+
+.card-wrap{width:100%;max-width:600px;margin-bottom:0.75rem;}
+.card{background:var(--surface);border-radius:18px;padding:1.25rem;border:2px solid rgba(255,255,255,0.06);position:relative;overflow:hidden;}
+.card.c1{border-color:rgba(78,205,196,0.35);}
+.card.c2{border-color:rgba(255,159,67,0.35);}
+.card.c3{border-color:rgba(162,155,254,0.35);}
+.card.c4{border-color:rgba(255,107,107,0.35);}
+
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+.card-no{font-family:'Boogaloo',cursive;font-size:13px;letter-spacing:2px;color:var(--text2);}
+.set-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);color:var(--text2);}
+
+/* ANSWER BOX */
+.answer-box{text-align:center;padding:1.25rem 0.5rem;margin-bottom:1rem;}
+.answer-label{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;}
+.answer-name{font-size:44px;font-weight:900;color:var(--yellow);margin-bottom:4px;line-height:1.1;}
+.answer-en{font-size:14px;color:var(--text2);}
+
+/* KEYWORDS */
+.kw-section{margin-bottom:1rem;}
+.kw-label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;}
+.kw-chips{display:flex;flex-wrap:wrap;gap:6px;}
+.kw-chip{padding:6px 12px;border-radius:20px;font-size:14px;font-weight:700;background:var(--surface2);}
+.c1 .kw-chip{color:var(--a1);}
+.c2 .kw-chip{color:var(--a2);}
+.c3 .kw-chip{color:var(--b1);}
+.c4 .kw-chip{color:var(--b2);}
+
+/* PROMPT */
+.prompt-box{background:var(--surface2);border-radius:10px;padding:10px 14px;text-align:center;}
+.prompt-en{font-family:'Boogaloo',cursive;font-size:17px;letter-spacing:0.5px;}
+.c1 .prompt-en{color:var(--a1);}
+.c2 .prompt-en{color:var(--a2);}
+.c3 .prompt-en{color:var(--b1);}
+.c4 .prompt-en{color:var(--b2);}
+.prompt-jp{font-size:11px;color:var(--text2);margin-top:3px;}
+
+/* DONE */
+.done-card{width:100%;max-width:600px;background:var(--surface);border-radius:18px;padding:3rem 2rem;text-align:center;display:none;}
+.done-card.show{display:block;}
+.done-emoji{font-size:56px;margin-bottom:1rem;}
+.done-title{font-family:'Boogaloo',cursive;font-size:28px;color:var(--yellow);margin-bottom:0.5rem;}
+.done-sub{font-size:14px;color:var(--text2);}
+
+.btn-next{width:100%;max-width:600px;padding:15px;border-radius:14px;border:none;font-size:18px;font-family:'Boogaloo',cursive;letter-spacing:1px;cursor:pointer;transition:transform 0.1s;margin-bottom:0.75rem;color:#fff;}
+.btn-next:active{transform:scale(0.97);}
+.bn1{background:var(--a1);color:#111;} .bn2{background:var(--a2);} .bn3{background:var(--b1);} .bn4{background:var(--b2);}
+.btn-reset{width:100%;max-width:600px;padding:11px;border-radius:14px;border:2px solid rgba(255,255,255,0.1);background:transparent;color:var(--text2);font-size:14px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;}
+
+@keyframes pop{0%{transform:scale(0.93);opacity:0;}60%{transform:scale(1.02);}100%{transform:scale(1);opacity:1;}}
+.card.animate{animation:pop 0.22s ease-out;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>💬 Who am I? — 出題者モード</h1>
+  <p>お題を見てキーワードをもとに英語でヒントを出そう！</p>
+  <p class="instruction">🗣 "It is ..." でヒント → ペアが "I think that it is ..." で答える</p>
+</div>
+
+<div class="tabs">
+  <div class="tab t1 active" onclick="switchSet(1)">🟢 初級①</div>
+  <div class="tab t2"        onclick="switchSet(2)">🟠 初級②</div>
+  <div class="tab t3"        onclick="switchSet(3)">🟣 上級①</div>
+  <div class="tab t4"        onclick="switchSet(4)">🔴 上級②</div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-fill f1" id="progress-fill" style="width:0%"></div>
+</div>
+
+<div class="card-wrap">
+  <div class="card c1 animate" id="main-card">
+    <div class="card-top">
+      <div class="card-no" id="card-no">1 / 10</div>
+      <div class="set-badge" id="set-badge">初級①</div>
+    </div>
+    <div class="answer-box">
+      <div class="answer-label">📌 お題</div>
+      <div class="answer-name" id="answer-name">—</div>
+      <div class="answer-en" id="answer-en">—</div>
+    </div>
+    <div class="kw-section">
+      <div class="kw-label">💡 使えるキーワード</div>
+      <div class="kw-chips" id="kw-chips"></div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-en">"It is ..." でヒントを出そう！</div>
+      <div class="prompt-jp">ペアは "I think that it is ..." で答える</div>
+    </div>
+  </div>
+  <div class="done-card" id="done-card">
+    <div class="done-emoji">🎉</div>
+    <div class="done-title">全部おわった！</div>
+    <div class="done-sub" id="done-sub">10問 コンプリート！</div>
+  </div>
+</div>
+
+<button class="btn-next bn1" id="btn-next" onclick="nextCard()">次の問題 ▶</button>
+<button class="btn-reset" onclick="resetCards()">🔄 最初からやり直す</button>
+
+<script>
+const SETS = {
+  1: {
+    label:"初級①", cls:"c1", fillCls:"f1", btnCls:"bn1", tabCls:"t1",
+    items:[
+      {name:"ピカチュウ",       en:"Pikachu",           kw:["yellow","electricity","forest","small"]},
+      {name:"ドラえもん",       en:"Doraemon",          kw:["robot","future","pocket","blue"]},
+      {name:"ルフィ",           en:"Monkey D. Luffy",   kw:["rubber","king","sea","straw hat"]},
+      {name:"竈門炭治郎",       en:"Tanjiro Kamado",    kw:["demon","kind","sister","sword"]},
+      {name:"マリオ",           en:"Mario",             kw:["red hat","jump","princess","mushroom"]},
+      {name:"アンパンマン",     en:"Anpanman",          kw:["bread","help","weak","fly"]},
+      {name:"スパイダーマン",   en:"Spider-Man",        kw:["web","red","New York","strong"]},
+      {name:"ゲンガー",         en:"Gengar",            kw:["ghost","purple","scary","sleep"]},
+      {name:"トトロ",           en:"Totoro",            kw:["big","forest","gray","fly"]},
+      {name:"しんちゃん",       en:"Crayon Shin-chan",  kw:["funny","kindergarten","action","Kasukabe"]},
+    ]
+  },
+  2: {
+    label:"初級②", cls:"c2", fillCls:"f2", btnCls:"bn2", tabCls:"t2",
+    items:[
+      {name:"大谷翔平",               en:"Shohei Ohtani",        kw:["baseball","Japan","America","two-way"]},
+      {name:"クリスティアーノ・ロナウド",en:"Cristiano Ronaldo",   kw:["soccer","Portugal","fast","goal"]},
+      {name:"テイラー・スウィフト",   en:"Taylor Swift",         kw:["singer","America","song","popular"]},
+      {name:"ハリー・ポッター",       en:"Harry Potter",         kw:["glasses","magic","school","scar"]},
+      {name:"ミッキーマウス",         en:"Mickey Mouse",         kw:["ears","black","Disney","cute"]},
+      {name:"ハーミオーニー",         en:"Hermione Granger",     kw:["smart","magic","friend","book"]},
+      {name:"ドナルドダック",         en:"Donald Duck",          kw:["blue","angry","duck","Disney"]},
+      {name:"キャプテン翼",           en:"Captain Tsubasa",      kw:["soccer","kick","dream","Japan"]},
+      {name:"ひまわり（しんちゃんの妹）",en:"Himawari",           kw:["baby","cute","sister","funny"]},
+      {name:"ソニック",               en:"Sonic the Hedgehog",   kw:["fast","blue","run","ring"]},
+    ]
+  },
+  3: {
+    label:"上級①", cls:"c3", fillCls:"f3", btnCls:"bn3", tabCls:"t3",
+    items:[
+      {name:"五条悟",         en:"Satoru Gojo",          kw:["blindfold","strong","sorcerer","blue eyes"]},
+      {name:"リヴァイ兵長",   en:"Levi Ackerman",        kw:["short","strong","soldier","clean"]},
+      {name:"シャンクス",     en:"Shanks",               kw:["red hair","arm","hat","sea"]},
+      {name:"オールマイト",   en:"All Might",            kw:["hero","muscle","smile","power"]},
+      {name:"デンジ",         en:"Denji",                kw:["chainsaw","devil","dog","dream"]},
+      {name:"吉良吉影",       en:"Yoshikage Kira",       kw:["hand","quiet","villain","bomb"]},
+      {name:"リオネル・メッシ",en:"Lionel Messi",         kw:["Argentina","small","fast","World Cup"]},
+      {name:"イーロン・マスク",en:"Elon Musk",            kw:["rich","car","Mars","company"]},
+      {name:"甘露寺蜜璃",     en:"Mitsuri Kanroji",      kw:["strong","girl","Demon Slayer","love"]},
+      {name:"ジョーカー",     en:"Joker",                kw:["makeup","laugh","villain","purple"]},
+    ]
+  },
+  4: {
+    label:"上級②", cls:"c4", fillCls:"f4", btnCls:"bn4", tabCls:"t4",
+    items:[
+      {name:"うちはサスケ",   en:"Sasuke Uchiha",        kw:["dark","cool","revenge","sharingan"]},
+      {name:"ベジータ",       en:"Vegeta",               kw:["prince","proud","strong","saiyan"]},
+      {name:"ロロノア・ゾロ", en:"Roronoa Zoro",         kw:["three swords","lost","strong","sleep"]},
+      {name:"エレン・イェーガー",en:"Eren Yeager",        kw:["titan","freedom","angry","wall"]},
+      {name:"煉獄杏寿郎",     en:"Rengoku Kyojuro",      kw:["fire","loud","kind","train"]},
+      {name:"マキマ",         en:"Makima",               kw:["mysterious","powerful","control","villain"]},
+      {name:"緑谷出久（デク）",en:"Izuku Midoriya",      kw:["green","hard worker","cry","hero"]},
+      {name:"錦織圭",         en:"Kei Nishikori",        kw:["tennis","Japan","fast","America"]},
+      {name:"八村塁",         en:"Rui Hachimura",        kw:["NBA","Japan","tall","basketball"]},
+      {name:"ビル・ゲイツ",   en:"Bill Gates",           kw:["computer","rich","Windows","glasses"]},
+    ]
+  }
+};
+
+let currentSet = 1;
+let queue = [];
+let currentIdx = 0;
+
+function shuffle(arr){return [...arr].sort(()=>Math.random()-0.5);}
+
+function init(){
+  queue = shuffle(SETS[currentSet].items);
+  currentIdx = 0;
+  document.getElementById('done-card').classList.remove('show');
+  document.getElementById('main-card').style.display = 'block';
+  document.getElementById('btn-next').style.display = 'block';
+  showCard();
+}
+
+function showCard(){
+  const item = queue[currentIdx];
+  const s = SETS[currentSet];
+  const card = document.getElementById('main-card');
+
+  card.className = 'card ' + s.cls;
+  document.getElementById('card-no').textContent = (currentIdx+1) + ' / ' + queue.length;
+  document.getElementById('set-badge').textContent = s.label;
+  document.getElementById('answer-name').textContent = item.name;
+  document.getElementById('answer-en').textContent = item.en;
+
+  // Keywords
+  document.getElementById('kw-chips').innerHTML = item.kw.map(k=>
+    `<div class="kw-chip">${k}</div>`
+  ).join('');
+
+  // Progress
+  const pct = Math.round((currentIdx / queue.length) * 100);
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  card.classList.remove('animate');
+  void card.offsetWidth;
+  card.classList.add('animate');
+}
+
+function nextCard(){
+  currentIdx++;
+  if(currentIdx >= queue.length){
+    document.getElementById('main-card').style.display = 'none';
+    document.getElementById('btn-next').style.display = 'none';
+    document.getElementById('progress-fill').style.width = '100%';
+    document.getElementById('done-card').classList.add('show');
+    document.getElementById('done-sub').textContent = SETS[currentSet].label + ' 10問 コンプリート！';
+    return;
+  }
+  showCard();
+}
+
+function resetCards(){init();}
+
+function switchSet(n){
+  currentSet = n;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tab.t'+n).classList.add('active');
+  document.getElementById('progress-fill').className = 'progress-fill f'+n;
+  document.getElementById('btn-next').className = 'btn-next bn'+n;
+  init();
+}
+
+init();
+</script>
+</body>
+</html>
