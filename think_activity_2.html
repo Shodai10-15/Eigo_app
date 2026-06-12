@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who am I? | I think Activity</title>
+<link href="https://fonts.googleapis.com/css2?family=Boogaloo&family=Noto+Sans+JP:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --a1:#4ECDC4;--a2:#FF9F43;--b1:#A29BFE;--b2:#FF6B6B;
+  --bg:#1A1A2E;--surface:#16213E;--surface2:#1E2D50;
+  --text:#FFFFFF;--text2:rgba(255,255,255,0.55);--yellow:#FFE66D;
+}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;display:flex;flex-direction:column;align-items:center;padding:1rem 1rem 2rem;}
+.header{width:100%;max-width:620px;text-align:center;padding:1.2rem 0 0.6rem;}
+.header h1{font-family:'Boogaloo',cursive;font-size:26px;color:var(--yellow);margin-bottom:4px;}
+.header p{font-size:12px;color:var(--text2);}
+.instruction{font-size:12px;color:var(--text2);background:var(--surface2);border-radius:8px;padding:6px 12px;display:inline-block;margin-top:6px;}
+.tabs{display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:6px;width:100%;max-width:620px;margin-bottom:0.75rem;}
+.tab{padding:10px 4px;border-radius:10px;border:2px solid transparent;font-size:12px;font-weight:700;font-family:'Boogaloo',cursive;cursor:pointer;transition:all 0.2s;text-align:center;line-height:1.3;}
+.tab.t1{background:rgba(78,205,196,0.15);border-color:rgba(78,205,196,0.3);color:var(--a1);}
+.tab.t2{background:rgba(255,159,67,0.15);border-color:rgba(255,159,67,0.3);color:var(--a2);}
+.tab.t3{background:rgba(162,155,254,0.15);border-color:rgba(162,155,254,0.3);color:var(--b1);}
+.tab.t4{background:rgba(255,107,107,0.15);border-color:rgba(255,107,107,0.3);color:var(--b2);}
+.tab.t1.active{background:var(--a1);color:#111;border-color:var(--a1);}
+.tab.t2.active{background:var(--a2);color:#fff;border-color:var(--a2);}
+.tab.t3.active{background:var(--b1);color:#fff;border-color:var(--b1);}
+.tab.t4.active{background:var(--b2);color:#fff;border-color:var(--b2);}
+.progress-wrap{width:100%;max-width:620px;height:4px;background:rgba(255,255,255,0.08);border-radius:2px;margin-bottom:0.75rem;overflow:hidden;}
+.progress-fill{height:100%;border-radius:2px;transition:width 0.4s;}
+.f1{background:var(--a1);}.f2{background:var(--a2);}.f3{background:var(--b1);}.f4{background:var(--b2);}
+.card-wrap{width:100%;max-width:620px;margin-bottom:0.75rem;}
+.card{background:var(--surface);border-radius:18px;padding:1.25rem;border:2px solid rgba(255,255,255,0.06);position:relative;overflow:hidden;}
+.card.c1{border-color:rgba(78,205,196,0.35);}
+.card.c2{border-color:rgba(255,159,67,0.35);}
+.card.c3{border-color:rgba(162,155,254,0.35);}
+.card.c4{border-color:rgba(255,107,107,0.35);}
+.card-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:0.75rem;}
+.card-no{font-family:'Boogaloo',cursive;font-size:13px;letter-spacing:2px;color:var(--text2);}
+.set-badge{font-size:11px;font-weight:700;padding:3px 10px;border-radius:20px;background:var(--surface2);color:var(--text2);}
+.answer-box{text-align:center;padding:1rem 0.5rem;margin-bottom:1rem;}
+.answer-label{font-size:11px;letter-spacing:2px;color:var(--text2);margin-bottom:6px;text-transform:uppercase;}
+.answer-name{font-size:40px;font-weight:900;color:var(--yellow);margin-bottom:4px;line-height:1.1;}
+.answer-en{font-size:13px;color:var(--text2);}
+.kw-section{margin-bottom:1rem;}
+.kw-label{font-size:11px;font-weight:700;letter-spacing:1px;color:var(--text2);margin-bottom:8px;text-transform:uppercase;}
+.kw-chips{display:flex;flex-wrap:wrap;gap:8px;}
+.kw-chip{padding:7px 12px;border-radius:10px;background:var(--surface2);display:flex;flex-direction:column;gap:2px;min-width:80px;}
+.kw-en{font-size:15px;font-weight:700;}
+.c1 .kw-en{color:var(--a1);}
+.c2 .kw-en{color:var(--a2);}
+.c3 .kw-en{color:var(--b1);}
+.c4 .kw-en{color:var(--b2);}
+.kw-kana{font-size:10px;color:var(--text2);}
+.kw-jp{font-size:11px;color:var(--text2);}
+.prompt-box{background:var(--surface2);border-radius:10px;padding:10px 14px;text-align:center;}
+.prompt-en{font-family:'Boogaloo',cursive;font-size:17px;letter-spacing:0.5px;}
+.c1 .prompt-en{color:var(--a1);}
+.c2 .prompt-en{color:var(--a2);}
+.c3 .prompt-en{color:var(--b1);}
+.c4 .prompt-en{color:var(--b2);}
+.prompt-jp{font-size:11px;color:var(--text2);margin-top:3px;}
+.done-card{width:100%;max-width:620px;background:var(--surface);border-radius:18px;padding:3rem 2rem;text-align:center;display:none;}
+.done-card.show{display:block;}
+.done-emoji{font-size:56px;margin-bottom:1rem;}
+.done-title{font-family:'Boogaloo',cursive;font-size:28px;color:var(--yellow);margin-bottom:0.5rem;}
+.done-sub{font-size:14px;color:var(--text2);}
+.btn-next{width:100%;max-width:620px;padding:15px;border-radius:14px;border:none;font-size:18px;font-family:'Boogaloo',cursive;letter-spacing:1px;cursor:pointer;transition:transform 0.1s;margin-bottom:0.75rem;color:#fff;}
+.btn-next:active{transform:scale(0.97);}
+.bn1{background:var(--a1);color:#111;}.bn2{background:var(--a2);}.bn3{background:var(--b1);}.bn4{background:var(--b2);}
+.btn-reset{width:100%;max-width:620px;padding:11px;border-radius:14px;border:2px solid rgba(255,255,255,0.1);background:transparent;color:var(--text2);font-size:14px;font-family:'Noto Sans JP',sans-serif;font-weight:700;cursor:pointer;}
+@keyframes pop{0%{transform:scale(0.93);opacity:0;}60%{transform:scale(1.02);}100%{transform:scale(1);opacity:1;}}
+.card.animate{animation:pop 0.22s ease-out;}
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>💬 Who am I? — 出題者モード</h1>
+  <p>お題を見てキーワードをもとに英語でヒントを出そう！</p>
+  <p class="instruction">🗣 "It is ..." でヒント → ペアが "I think that it is ..." で答える</p>
+</div>
+
+<div class="tabs">
+  <div class="tab t1 active" onclick="switchSet(1)">🟢 初級①</div>
+  <div class="tab t2"        onclick="switchSet(2)">🟠 初級②</div>
+  <div class="tab t3"        onclick="switchSet(3)">🟣 上級①</div>
+  <div class="tab t4"        onclick="switchSet(4)">🔴 上級②</div>
+</div>
+
+<div class="progress-wrap">
+  <div class="progress-fill f1" id="progress-fill" style="width:0%"></div>
+</div>
+
+<div class="card-wrap">
+  <div class="card c1 animate" id="main-card">
+    <div class="card-top">
+      <div class="card-no" id="card-no">1 / 10</div>
+      <div class="set-badge" id="set-badge">初級①</div>
+    </div>
+    <div class="answer-box">
+      <div class="answer-label">📌 お題</div>
+      <div class="answer-name" id="answer-name">—</div>
+      <div class="answer-en"  id="answer-en">—</div>
+    </div>
+    <div class="kw-section">
+      <div class="kw-label">💡 使えるキーワード</div>
+      <div class="kw-chips" id="kw-chips"></div>
+    </div>
+    <div class="prompt-box">
+      <div class="prompt-en">"It is ..." でヒントを出そう！</div>
+      <div class="prompt-jp">ペアは "I think that it is ..." で答える</div>
+    </div>
+  </div>
+  <div class="done-card" id="done-card">
+    <div class="done-emoji">🎉</div>
+    <div class="done-title">全部おわった！</div>
+    <div class="done-sub" id="done-sub">10問 コンプリート！</div>
+  </div>
+</div>
+
+<button class="btn-next bn1" id="btn-next" onclick="nextCard()">次の問題 ▶</button>
+<button class="btn-reset" onclick="resetCards()">🔄 最初からやり直す</button>
+
+<script>
+const SETS = {
+  1:{
+    label:"初級①",cls:"c1",fillCls:"f1",btnCls:"bn1",
+    items:[
+      {name:"ピカチュウ",en:"Pikachu",kw:[
+        {e:"yellow",k:"イエロー",j:"黄色"},
+        {e:"electricity",k:"エレクトリシティ",j:"電気"},
+        {e:"forest",k:"フォレスト",j:"森"},
+        {e:"small",k:"スモール",j:"小さい"},
+      ]},
+      {name:"ドラえもん",en:"Doraemon",kw:[
+        {e:"robot",k:"ロボット",j:"ロボット"},
+        {e:"future",k:"フューチャー",j:"未来"},
+        {e:"pocket",k:"ポケット",j:"ポケット"},
+        {e:"blue",k:"ブルー",j:"青"},
+      ]},
+      {name:"ルフィ",en:"Monkey D. Luffy",kw:[
+        {e:"rubber",k:"ラバー",j:"ゴム"},
+        {e:"king",k:"キング",j:"王様"},
+        {e:"sea",k:"シー",j:"海"},
+        {e:"straw hat",k:"ストロー ハット",j:"麦わら帽子"},
+      ]},
+      {name:"竈門炭治郎",en:"Tanjiro Kamado",kw:[
+        {e:"demon",k:"デーモン",j:"鬼"},
+        {e:"kind",k:"カインド",j:"優しい"},
+        {e:"sister",k:"シスター",j:"妹"},
+        {e:"sword",k:"ソード",j:"刀"},
+      ]},
+      {name:"マリオ",en:"Mario",kw:[
+        {e:"red hat",k:"レッド ハット",j:"赤い帽子"},
+        {e:"jump",k:"ジャンプ",j:"飛ぶ"},
+        {e:"princess",k:"プリンセス",j:"お姫様"},
+        {e:"mushroom",k:"マッシュルーム",j:"キノコ"},
+      ]},
+      {name:"アンパンマン",en:"Anpanman",kw:[
+        {e:"bread",k:"ブレッド",j:"パン"},
+        {e:"help",k:"ヘルプ",j:"助ける"},
+        {e:"weak",k:"ウィーク",j:"弱い"},
+        {e:"fly",k:"フライ",j:"飛ぶ"},
+      ]},
+      {name:"スパイダーマン",en:"Spider-Man",kw:[
+        {e:"web",k:"ウェブ",j:"クモの巣"},
+        {e:"red",k:"レッド",j:"赤"},
+        {e:"New York",k:"ニューヨーク",j:"ニューヨーク"},
+        {e:"strong",k:"ストロング",j:"強い"},
+      ]},
+      {name:"ゲンガー",en:"Gengar",kw:[
+        {e:"ghost",k:"ゴースト",j:"おばけ"},
+        {e:"purple",k:"パープル",j:"紫"},
+        {e:"scary",k:"スケアリー",j:"怖い"},
+        {e:"sleep",k:"スリープ",j:"眠らせる"},
+      ]},
+      {name:"トトロ",en:"Totoro",kw:[
+        {e:"big",k:"ビッグ",j:"大きい"},
+        {e:"forest",k:"フォレスト",j:"森"},
+        {e:"gray",k:"グレー",j:"灰色"},
+        {e:"fly",k:"フライ",j:"飛ぶ"},
+      ]},
+      {name:"しんちゃん",en:"Crayon Shin-chan",kw:[
+        {e:"funny",k:"ファニー",j:"面白い"},
+        {e:"kindergarten",k:"キンダーガーテン",j:"幼稚園"},
+        {e:"action",k:"アクション",j:"アクション"},
+        {e:"Kasukabe",k:"カスカベ",j:"春日部"},
+      ]},
+    ]
+  },
+  2:{
+    label:"初級②",cls:"c2",fillCls:"f2",btnCls:"bn2",
+    items:[
+      {name:"大谷翔平",en:"Shohei Ohtani",kw:[
+        {e:"baseball",k:"ベースボール",j:"野球"},
+        {e:"Japan",k:"ジャパン",j:"日本"},
+        {e:"America",k:"アメリカ",j:"アメリカ"},
+        {e:"two-way",k:"ツーウェイ",j:"二刀流"},
+      ]},
+      {name:"クリスティアーノ・ロナウド",en:"Cristiano Ronaldo",kw:[
+        {e:"soccer",k:"サッカー",j:"サッカー"},
+        {e:"Portugal",k:"ポルトガル",j:"ポルトガル"},
+        {e:"fast",k:"ファスト",j:"速い"},
+        {e:"goal",k:"ゴール",j:"ゴール"},
+      ]},
+      {name:"テイラー・スウィフト",en:"Taylor Swift",kw:[
+        {e:"singer",k:"シンガー",j:"歌手"},
+        {e:"America",k:"アメリカ",j:"アメリカ"},
+        {e:"song",k:"ソング",j:"歌"},
+        {e:"popular",k:"ポピュラー",j:"人気"},
+      ]},
+      {name:"ハリー・ポッター",en:"Harry Potter",kw:[
+        {e:"glasses",k:"グラシーズ",j:"眼鏡"},
+        {e:"magic",k:"マジック",j:"魔法"},
+        {e:"school",k:"スクール",j:"学校"},
+        {e:"scar",k:"スカー",j:"傷"},
+      ]},
+      {name:"ミッキーマウス",en:"Mickey Mouse",kw:[
+        {e:"ears",k:"イアーズ",j:"耳"},
+        {e:"black",k:"ブラック",j:"黒"},
+        {e:"Disney",k:"ディズニー",j:"ディズニー"},
+        {e:"cute",k:"キュート",j:"かわいい"},
+      ]},
+      {name:"ハーミオーニー",en:"Hermione Granger",kw:[
+        {e:"smart",k:"スマート",j:"頭がいい"},
+        {e:"magic",k:"マジック",j:"魔法"},
+        {e:"friend",k:"フレンド",j:"友達"},
+        {e:"book",k:"ブック",j:"本"},
+      ]},
+      {name:"ドナルドダック",en:"Donald Duck",kw:[
+        {e:"blue",k:"ブルー",j:"青"},
+        {e:"angry",k:"アングリー",j:"怒りっぽい"},
+        {e:"duck",k:"ダック",j:"アヒル"},
+        {e:"Disney",k:"ディズニー",j:"ディズニー"},
+      ]},
+      {name:"キャプテン翼",en:"Captain Tsubasa",kw:[
+        {e:"soccer",k:"サッカー",j:"サッカー"},
+        {e:"kick",k:"キック",j:"蹴る"},
+        {e:"dream",k:"ドリーム",j:"夢"},
+        {e:"Japan",k:"ジャパン",j:"日本"},
+      ]},
+      {name:"名探偵コナン",en:"Detective Conan",kw:[
+        {e:"small",k:"スモール",j:"小さい"},
+        {e:"glasses",k:"グラシーズ",j:"眼鏡"},
+        {e:"mystery",k:"ミステリー",j:"謎"},
+        {e:"bow tie",k:"ボウ タイ",j:"蝶ネクタイ"},
+      ]},
+      {name:"ソニック",en:"Sonic the Hedgehog",kw:[
+        {e:"fast",k:"ファスト",j:"速い"},
+        {e:"blue",k:"ブルー",j:"青"},
+        {e:"run",k:"ラン",j:"走る"},
+        {e:"ring",k:"リング",j:"リング"},
+      ]},
+    ]
+  },
+  3:{
+    label:"上級①",cls:"c3",fillCls:"f3",btnCls:"bn3",
+    items:[
+      {name:"五条悟",en:"Satoru Gojo",kw:[
+        {e:"blindfold",k:"ブラインドフォールド",j:"目隠し"},
+        {e:"strong",k:"ストロング",j:"最強"},
+        {e:"sorcerer",k:"ソーサラー",j:"術師"},
+        {e:"blue eyes",k:"ブルー アイズ",j:"青い目"},
+      ]},
+      {name:"リヴァイ兵長",en:"Levi Ackerman",kw:[
+        {e:"short",k:"ショート",j:"背が低い"},
+        {e:"strong",k:"ストロング",j:"強い"},
+        {e:"soldier",k:"ソルジャー",j:"兵士"},
+        {e:"clean",k:"クリーン",j:"清潔好き"},
+      ]},
+      {name:"シャンクス",en:"Shanks",kw:[
+        {e:"red hair",k:"レッド ヘア",j:"赤い髪"},
+        {e:"arm",k:"アーム",j:"腕"},
+        {e:"hat",k:"ハット",j:"帽子"},
+        {e:"sea",k:"シー",j:"海"},
+      ]},
+      {name:"オールマイト",en:"All Might",kw:[
+        {e:"hero",k:"ヒーロー",j:"ヒーロー"},
+        {e:"muscle",k:"マッスル",j:"筋肉"},
+        {e:"smile",k:"スマイル",j:"笑顔"},
+        {e:"power",k:"パワー",j:"力"},
+      ]},
+      {name:"デンジ",en:"Denji",kw:[
+        {e:"chainsaw",k:"チェーンソー",j:"チェーンソー"},
+        {e:"devil",k:"デビル",j:"悪魔"},
+        {e:"dog",k:"ドッグ",j:"犬"},
+        {e:"dream",k:"ドリーム",j:"夢"},
+      ]},
+      {name:"カビゴン",en:"Snorlax",kw:[
+        {e:"big",k:"ビッグ",j:"大きい"},
+        {e:"sleep",k:"スリープ",j:"眠る"},
+        {e:"eat",k:"イート",j:"食べる"},
+        {e:"block",k:"ブロック",j:"道をふさぐ"},
+      ]},
+      {name:"リオネル・メッシ",en:"Lionel Messi",kw:[
+        {e:"Argentina",k:"アルゼンチナ",j:"アルゼンチン"},
+        {e:"small",k:"スモール",j:"小さい"},
+        {e:"fast",k:"ファスト",j:"速い"},
+        {e:"World Cup",k:"ワールドカップ",j:"ワールドカップ"},
+      ]},
+      {name:"イーロン・マスク",en:"Elon Musk",kw:[
+        {e:"rich",k:"リッチ",j:"お金持ち"},
+        {e:"car",k:"カー",j:"自動車"},
+        {e:"Mars",k:"マーズ",j:"火星"},
+        {e:"company",k:"カンパニー",j:"会社"},
+      ]},
+      {name:"甘露寺蜜璃",en:"Mitsuri Kanroji",kw:[
+        {e:"strong",k:"ストロング",j:"強い"},
+        {e:"girl",k:"ガール",j:"女の子"},
+        {e:"Demon Slayer",k:"デーモン スレイヤー",j:"鬼滅の刃"},
+        {e:"love",k:"ラブ",j:"恋"},
+      ]},
+      {name:"ジョーカー",en:"Joker",kw:[
+        {e:"makeup",k:"メイクアップ",j:"化粧"},
+        {e:"laugh",k:"ラフ",j:"笑う"},
+        {e:"villain",k:"ヴィラン",j:"悪役"},
+        {e:"purple",k:"パープル",j:"紫"},
+      ]},
+    ]
+  },
+  4:{
+    label:"上級②",cls:"c4",fillCls:"f4",btnCls:"bn4",
+    items:[
+      {name:"うちはサスケ",en:"Sasuke Uchiha",kw:[
+        {e:"dark",k:"ダーク",j:"暗い"},
+        {e:"cool",k:"クール",j:"かっこいい"},
+        {e:"revenge",k:"リベンジ",j:"復讐"},
+        {e:"sharingan",k:"シャリンガン",j:"写輪眼"},
+      ]},
+      {name:"ベジータ",en:"Vegeta",kw:[
+        {e:"prince",k:"プリンス",j:"王子"},
+        {e:"proud",k:"プラウド",j:"プライドが高い"},
+        {e:"strong",k:"ストロング",j:"強い"},
+        {e:"saiyan",k:"サイヤン",j:"サイヤ人"},
+      ]},
+      {name:"ロロノア・ゾロ",en:"Roronoa Zoro",kw:[
+        {e:"three swords",k:"スリー ソーズ",j:"三刀流"},
+        {e:"lost",k:"ロスト",j:"迷子になる"},
+        {e:"strong",k:"ストロング",j:"強い"},
+        {e:"sleep",k:"スリープ",j:"寝る"},
+      ]},
+      {name:"エレン・イェーガー",en:"Eren Yeager",kw:[
+        {e:"titan",k:"タイタン",j:"巨人"},
+        {e:"freedom",k:"フリーダム",j:"自由"},
+        {e:"angry",k:"アングリー",j:"怒る"},
+        {e:"wall",k:"ウォール",j:"壁"},
+      ]},
+      {name:"煉獄杏寿郎",en:"Rengoku Kyojuro",kw:[
+        {e:"fire",k:"ファイア",j:"炎"},
+        {e:"loud",k:"ラウド",j:"声が大きい"},
+        {e:"kind",k:"カインド",j:"優しい"},
+        {e:"train",k:"トレイン",j:"電車"},
+      ]},
+      {name:"マキマ",en:"Makima",kw:[
+        {e:"mysterious",k:"ミステリアス",j:"謎めいた"},
+        {e:"powerful",k:"パワフル",j:"強力な"},
+        {e:"control",k:"コントロール",j:"支配する"},
+        {e:"villain",k:"ヴィラン",j:"悪役"},
+      ]},
+      {name:"緑谷出久（デク）",en:"Izuku Midoriya",kw:[
+        {e:"green",k:"グリーン",j:"緑"},
+        {e:"hard worker",k:"ハード ワーカー",j:"努力家"},
+        {e:"cry",k:"クライ",j:"泣く"},
+        {e:"hero",k:"ヒーロー",j:"ヒーロー"},
+      ]},
+      {name:"錦織圭",en:"Kei Nishikori",kw:[
+        {e:"tennis",k:"テニス",j:"テニス"},
+        {e:"Japan",k:"ジャパン",j:"日本"},
+        {e:"fast",k:"ファスト",j:"速い"},
+        {e:"America",k:"アメリカ",j:"アメリカ"},
+      ]},
+      {name:"羽生結弦",en:"Yuzuru Hanyu",kw:[
+        {e:"ice",k:"アイス",j:"氷"},
+        {e:"jump",k:"ジャンプ",j:"跳ぶ"},
+        {e:"Japan",k:"ジャパン",j:"日本"},
+        {e:"beautiful",k:"ビューティフル",j:"美しい"},
+      ]},
+      {name:"イチロー",en:"Ichiro Suzuki",kw:[
+        {e:"baseball",k:"ベースボール",j:"野球"},
+        {e:"hit",k:"ヒット",j:"安打"},
+        {e:"Japan",k:"ジャパン",j:"日本"},
+        {e:"America",k:"アメリカ",j:"アメリカ"},
+      ]},
+    ]
+  }
+};
+
+let currentSet=1,queue=[],currentIdx=0;
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function init(){
+  queue=shuffle(SETS[currentSet].items);
+  currentIdx=0;
+  document.getElementById('done-card').classList.remove('show');
+  document.getElementById('main-card').style.display='block';
+  document.getElementById('btn-next').style.display='block';
+  showCard();
+}
+function showCard(){
+  const item=queue[currentIdx];
+  const s=SETS[currentSet];
+  const card=document.getElementById('main-card');
+  card.className='card '+s.cls;
+  document.getElementById('card-no').textContent=(currentIdx+1)+' / '+queue.length;
+  document.getElementById('set-badge').textContent=s.label;
+  document.getElementById('answer-name').textContent=item.name;
+  document.getElementById('answer-en').textContent=item.en;
+  document.getElementById('kw-chips').innerHTML=item.kw.map(k=>`
+    <div class="kw-chip">
+      <div class="kw-en">${k.e}</div>
+      <div class="kw-kana">${k.k}</div>
+      <div class="kw-jp">${k.j}</div>
+    </div>`).join('');
+  const pct=Math.round((currentIdx/queue.length)*100);
+  document.getElementById('progress-fill').style.width=pct+'%';
+  card.classList.remove('animate');
+  void card.offsetWidth;
+  card.classList.add('animate');
+}
+function nextCard(){
+  currentIdx++;
+  if(currentIdx>=queue.length){
+    document.getElementById('main-card').style.display='none';
+    document.getElementById('btn-next').style.display='none';
+    document.getElementById('progress-fill').style.width='100%';
+    document.getElementById('done-card').classList.add('show');
+    document.getElementById('done-sub').textContent=SETS[currentSet].label+' 10問 コンプリート！';
+    return;
+  }
+  showCard();
+}
+function resetCards(){init();}
+function switchSet(n){
+  currentSet=n;
+  document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+  document.querySelector('.tab.t'+n).classList.add('active');
+  document.getElementById('progress-fill').className='progress-fill f'+n;
+  document.getElementById('btn-next').className='btn-next bn'+n;
+  init();
+}
+init();
+</script>
+</body>
+</html>
